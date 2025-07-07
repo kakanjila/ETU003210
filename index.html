@@ -2,10 +2,10 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Gestion des étudiants</title>
+  <title>Gestion des fonds</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    input, button { margin: 5px; padding: 5px; }
+    a, button { margin: 5px; padding: 5px; }
     table { border-collapse: collapse; width: 100%; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     th { background-color: #f2f2f2; }
@@ -13,21 +13,20 @@
 </head>
 <body>
 
-  <h1>Gestion des étudiants</h1>
-
+  <h1>Gestion des fonds</h1>
   <div>
-    <input type="hidden" id="id">
-    <input type="text" id="nom" placeholder="Nom">
-    <input type="text" id="prenom" placeholder="Prénom">
-    <input type="email" id="email" placeholder="Email">
-    <input type="number" id="age" placeholder="Âge">
-    <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
+    <a href="ajouter_fond.html">Ajouter un nouveau fonds</a>
   </div>
 
-  <table id="table-etudiants">
+  <table id="table-fonds">
     <thead>
       <tr>
-        <th>ID</th><th>Nom</th><th>Prénom</th><th>Email</th><th>Âge</th><th>Actions</th>
+        <th>ID</th>
+        <th>Nom du fonds</th>
+        <th>Montant total</th>
+        <th>Montant disponible</th>
+        <th>Date de création</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -48,21 +47,21 @@
       xhr.send(data);
     }
 
-    function chargerEtudiants() {
-      ajax("GET", "/etudiants", null, (data) => {
-        const tbody = document.querySelector("#table-etudiants tbody");
+    function chargerFonds() {
+      ajax("GET", "/fonds", null, (data) => {
+        const tbody = document.querySelector("#table-fonds tbody");
         tbody.innerHTML = "";
-        data.forEach(e => {
+        data.forEach(f => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td>${e.id}</td>
-            <td>${e.nom}</td>
-            <td>${e.prenom}</td>
-            <td>${e.email}</td>
-            <td>${e.age}</td>
+            <td>${f.id_fonds}</td>
+            <td>${f.nom_fonds}</td>
+            <td>${f.montant_total}</td>
+            <td>${f.montant_disponible}</td>
+            <td>${f.date_creation}</td>
             <td>
-              <button onclick='remplirFormulaire(${JSON.stringify(e)})'>✏️</button>
-              <button onclick='supprimerEtudiant(${e.id})'>🗑️</button>
+              <button onclick='modifierFonds(${f.id_fonds})'>✏️</button>
+              <button onclick='supprimerFonds(${f.id_fonds})'>🗑️</button>
             </td>
           `;
           tbody.appendChild(tr);
@@ -70,53 +69,19 @@
       });
     }
 
-    function ajouterOuModifier() {
-      const id = document.getElementById("id").value;
-      const nom = document.getElementById("nom").value;
-      const prenom = document.getElementById("prenom").value;
-      const email = document.getElementById("email").value;
-      const age = document.getElementById("age").value;
+    function modifierFonds(id) {
+      window.location.href = `ajouter_fond.html?id=${id}`;
+    }
 
-      const data = `nom=${encodeURIComponent(nom)}&prenom=${encodeURIComponent(prenom)}&email=${encodeURIComponent(email)}&age=${age}`;
-
-      if (id) {
-        ajax("PUT", `/etudiants/${id}`, data, () => {
-          resetForm();
-          chargerEtudiants();
-        });
-      } else {
-        ajax("POST", "/etudiants", data, () => {
-          resetForm();
-          chargerEtudiants();
+    function supprimerFonds(id) {
+      if (confirm("Supprimer ce fonds ?")) {
+        ajax("DELETE", `/fonds/${id}`, null, () => {
+          chargerFonds();
         });
       }
     }
 
-    function remplirFormulaire(e) {
-      document.getElementById("id").value = e.id;
-      document.getElementById("nom").value = e.nom;
-      document.getElementById("prenom").value = e.prenom;
-      document.getElementById("email").value = e.email;
-      document.getElementById("age").value = e.age;
-    }
-
-    function supprimerEtudiant(id) {
-      if (confirm("Supprimer cet étudiant ?")) {
-        ajax("DELETE", `/etudiants/${id}`, null, () => {
-          chargerEtudiants();
-        });
-      }
-    }
-
-    function resetForm() {
-      document.getElementById("id").value = "";
-      document.getElementById("nom").value = "";
-      document.getElementById("prenom").value = "";
-      document.getElementById("email").value = "";
-      document.getElementById("age").value = "";
-    }
-
-    chargerEtudiants();
+    chargerFonds();
   </script>
 
 </body>
