@@ -353,30 +353,47 @@
     }
     
     function chargerPrets() {
-      chargerSelectClients();
-      chargerSelectTypesPret();
-    
-      ajax("GET", "/prets", null, (data) => {
-        const tbody = document.querySelector("#table-prets tbody");
-        tbody.innerHTML = "";
-        data.forEach(p => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${p.id_pret}</td>
-            <td>${p.client_nom}</td>
-            <td>${p.type_pret_nom} (${p.taux_interet}%)</td>
-            <td>${p.montant.toLocaleString()} €</td>
-            <td>${p.statut}</td>
-            <td>
-              <button onclick='editerPret(${JSON.stringify(p)})'>Éditer</button>
-              <button onclick='afficherPaiementPret(${p.id_pret}, ${p.id_client})'>Payer</button>
-              <button onclick='afficherHistoriquePret(${p.id_pret})'>Historique</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-      });
-    }
+  chargerSelectClients();
+  chargerSelectTypesPret();
+
+  ajax("GET", "/prets", null, (data) => {
+    const tbody = document.querySelector("#table-prets tbody");
+    tbody.innerHTML = "";
+    data.forEach(p => {
+      const tr = document.createElement("tr");
+      // Ajouter une classe conditionnelle à la ligne selon le statut
+      tr.className = p.statut.toLowerCase();
+      tr.innerHTML = `
+        <td>${p.id_pret}</td>
+        <td>${p.client_nom}</td>
+        <td>${p.type_pret_nom} (${p.taux_interet}%)</td>
+        <td>${p.montant.toLocaleString()} €</td>
+        <td>${p.statut}</td>
+        <td>
+          <button onclick='editerPret(${JSON.stringify(p)})'>Éditer</button>
+          ${p.statut === 'EN_ATTENTE' ? 
+            `<button class="success" onclick='approuverPret(${p.id_pret}, ${p.id_client})'>Approuver</button>` 
+            : ''}
+          ${p.statut === 'APPROUVE' ? 
+            `<button onclick='afficherPaiementPret(${p.id_pret}, ${p.id_client})'>Payer</button>` 
+            : ''}
+          <button onclick='afficherHistoriquePret(${p.id_pret})'>Historique</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+// Ajouter cette nouvelle fonction
+function approuverPret(idPret, idClient) {
+  if (confirm("Êtes-vous sûr de vouloir approuver ce prêt ?")) {
+    const data = `statut=APPROUVE&id_client=${idClient}`;
+    ajax("PUT", `/prets/${idPret}/status`, data, () => {
+      chargerPrets();
+    });
+  }
+}
     
     function chargerSelectClients() {
       ajax("GET", "/clients", null, (data) => {
