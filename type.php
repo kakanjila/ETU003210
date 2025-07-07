@@ -207,7 +207,7 @@
     <div class="tabs">
       <button class="tab-btn active" onclick="showSection('prets')">Prêts</button>
       <button class="tab-btn" onclick="showSection('clients')">Clients</button>
-      <a href="type.php">type</a>
+      <button class="tab-btn" onclick="showSection('types-pret')">Types de Prêt</button>
     </div>
     
     <div id="prets-section" class="section active">
@@ -253,6 +253,33 @@
         </thead>
         <tbody></tbody>
       </table>
+    </div>
+    
+    <div id="types-pret-section" class="section">
+      <h2>Gestion des Types de Prêt</h2>
+      
+      <div class="form-group">
+            <input type="hidden" id="type-pret-id">
+            <input type="text" id="type-pret-nom" placeholder="Nom du type de prêt" required>
+            <input type="number" id="type-pret-taux" placeholder="Taux d'intérêt (%)" step="0.01" min="0" required>
+            <input type="number" id="type-pret-duree-max" placeholder="Durée maximale (mois)" min="1" required>
+            <input type="text" id="type-pret-description" placeholder="Description" required>
+            <button onclick="gererTypePret()">Ajouter un type de prêt</button>
+        </div>
+        
+        <table id="table-types-pret">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Taux d'intérêt</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
     
     <div id="clients-section" class="section">
@@ -348,8 +375,12 @@
       });
       document.getElementById(section + '-section').classList.add('active');
       
-      if(section === 'prets') chargerPrets();
+      if(section === 'prets') {
+        chargerPrets();
+        chargerTypesPret();
+      }
       if(section === 'clients') chargerClients();
+      if(section === 'types-pret') chargerTypesPret();
     }
     
     function chargerPrets() {
@@ -479,40 +510,47 @@
       });
     }
     
-    function gererClient() {
-      const id = document.getElementById("client-id").value;
-      const data = new URLSearchParams();
-      
-      data.append('nom', document.getElementById("client-nom").value);
-      data.append('email', document.getElementById("client-email").value);
-      data.append('mdp', document.getElementById("client-mdp").value);
-      data.append('telephone', document.getElementById("client-tel").value);
-      data.append('date_naissance', document.getElementById("client-naissance").value);
+    function gererTypePret() {
+    const id = document.getElementById("type-pret-id").value;
+    const data = new URLSearchParams();
     
-      if (id) {
-        ajax("PUT", `/clients/${id}`, data, () => {
-          resetFormClient();
-          chargerClients();
+    data.append('nom_type', document.getElementById("type-pret-nom").value);
+    data.append('taux_interet', document.getElementById("type-pret-taux").value);
+    data.append('duree_max_mois', document.getElementById("type-pret-duree-max").value);
+    // Ajoutez l'ID de l'établissement si nécessaire
+    data.append('id_etablissement', 1); // À adapter selon votre logique
+
+    if (id) {
+        ajax("PUT", `/types_pret/${id}`, data, () => {
+            resetFormTypePret();
+            chargerTypesPret();
         });
-      } else {
-        ajax("POST", "/clients", data, () => {
-          resetFormClient();
-          chargerClients();
+    } else {
+        ajax("POST", "/types_pret", data, () => {
+            resetFormTypePret();
+            chargerTypesPret();
         });
-      }
     }
+}
+
+function editerTypePret(t) {
+    document.getElementById("type-pret-id").value = t.id_type_pret;
+    document.getElementById("type-pret-nom").value = t.nom_type;
+    document.getElementById("type-pret-taux").value = t.taux_interet;
+    document.getElementById("type-pret-duree-max").value = t.duree_max_mois;
+    document.getElementById("type-pret-description").value = t.description || '';
     
-    function editerClient(c) {
-      document.getElementById("client-id").value = c.id_client;
-      document.getElementById("client-nom").value = c.nom;
-      document.getElementById("client-email").value = c.email;
-      document.getElementById("client-mdp").value = c.mdp;
-      document.getElementById("client-tel").value = c.telephone;
-      document.getElementById("client-naissance").value = c.date_naissance;
-      
-      document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
-    }
-    
+    document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetFormTypePret() {
+    document.getElementById("type-pret-id").value = "";
+    document.getElementById("type-pret-nom").value = "";
+    document.getElementById("type-pret-taux").value = "";
+    document.getElementById("type-pret-duree-max").value = "";
+    document.getElementById("type-pret-description").value = "";
+}
+
     function supprimerClient(id) {
       if (confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
         ajax("DELETE", `/clients/${id}`, null, () => {
@@ -521,13 +559,70 @@
       }
     }
     
-    function resetFormClient() {
-      document.getElementById("client-id").value = "";
-      document.getElementById("client-nom").value = "";
-      document.getElementById("client-email").value = "";
-      document.getElementById("client-mdp").value = "";
-      document.getElementById("client-tel").value = "";
-      document.getElementById("client-naissance").value = "";
+    function chargerTypesPret() {
+      ajax("GET", "/types_pret", null, (data) => {
+        const tbody = document.querySelector("#table-types-pret tbody");
+        tbody.innerHTML = "";
+        data.forEach(t => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${t.id_type_pret}</td>
+            <td>${t.nom_type}</td>
+            <td>${t.taux_interet}%</td>
+            <td>${t.description || '-'}</td>
+            <td>
+              <button onclick='editerTypePret(${JSON.stringify(t)})'>Éditer</button>
+              <button class="danger" onclick='supprimerTypePret(${t.id_type_pret})'>Supprimer</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    function gererTypePret() {
+      const id = document.getElementById("type-pret-id").value;
+      const data = new URLSearchParams();
+      
+      data.append('nom_type', document.getElementById("type-pret-nom").value);
+      data.append('taux_interet', document.getElementById("type-pret-taux").value);
+      data.append('description', document.getElementById("type-pret-description").value);
+    
+      if (id) {
+        ajax("PUT", `/types_pret/${id}`, data, () => {
+          resetFormTypePret();
+          chargerTypesPret();
+        });
+      } else {
+        ajax("POST", "/types_pret", data, () => {
+          resetFormTypePret();
+          chargerTypesPret();
+        });
+      }
+    }
+
+    function editerTypePret(t) {
+      document.getElementById("type-pret-id").value = t.id_type_pret;
+      document.getElementById("type-pret-nom").value = t.nom_type;
+      document.getElementById("type-pret-taux").value = t.taux_interet;
+      document.getElementById("type-pret-description").value = t.description || '';
+      
+      document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function supprimerTypePret(id) {
+      if (confirm("Êtes-vous sûr de vouloir supprimer ce type de prêt ?")) {
+        ajax("DELETE", `/types_pret/${id}`, null, () => {
+          chargerTypesPret();
+        });
+      }
+    }
+
+    function resetFormTypePret() {
+      document.getElementById("type-pret-id").value = "";
+      document.getElementById("type-pret-nom").value = "";
+      document.getElementById("type-pret-taux").value = "";
+      document.getElementById("type-pret-description").value = "";
     }
     
     function afficherPaiementPret(idPret, idClient) {
