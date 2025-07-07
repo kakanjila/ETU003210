@@ -8,3 +8,4 @@ Flight::route('POST /prets', ['PretController', 'create']);
 Flight::route('PUT /prets/@id/status', ['PretController', 'updateStatus']);
 Flight::route('GET /prets/@id/historique', ['PretController', 'getHistorique']);
 Flight::route('POST /prets/@id/paiements', ['PretController', 'createPaiement']);
+// Flight::route('PUT /prets/@id/status', ['Pret', 'updateStatusRoute']);

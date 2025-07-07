@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Simulation des Prêts</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -20,6 +22,7 @@
         }
       }
     }
+    const { jsPDF } = window.jspdf;
   </script>
   <style>
     body {
@@ -70,6 +73,12 @@
     
     .amortissement-table tr:hover {
       background-color: #f5f3ff;
+    }
+    
+    .action-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -153,35 +162,40 @@
 
   <script>
     const apiBase = "http://localhost/ETU003210/ws";
+    let currentPretId = null; // Variable pour stocker l'ID du prêt en cours de simulation
 
     function chargerPrets() {
-      fetch(apiBase + "/prets")
-        .then(r => r.json())
-        .then(data => {
-          const tbody = document.querySelector("#prets-table tbody");
-          tbody.innerHTML = "";
-          data.forEach(p => {
+    fetch(apiBase + "/prets")
+    .then(r => r.json())
+    .then(data => {
+        const tbody = document.querySelector("#prets-table tbody");
+        tbody.innerHTML = "";
+        data.forEach(p => {
             const tr = document.createElement("tr");
             tr.className = "hover:bg-gray-50";
+            tr.setAttribute('data-id', p.id_pret);
+            tr.setAttribute('data-client-id', p.id_client); // Ajout de l'ID client
             tr.innerHTML = `
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${p.id_pret}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.client_nom}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${parseFloat(p.montant).toLocaleString()} AR</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.duree_mois} mois</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.taux_interet}%</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.taux_assurance || 0}%</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <button onclick="simulerPret(${p.id_pret})" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-1 px-3 rounded-md shadow-sm transition duration-200">
-                  Simuler
-                </button>
-              </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${p.id_pret}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.client_nom}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${parseFloat(p.montant).toLocaleString()} AR</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.duree_mois} mois</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.taux_interet}%</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.taux_assurance || 0}%</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <button onclick="simulerPret(${p.id_pret})" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-1 px-3 rounded-md shadow-sm transition duration-200">
+                        Simuler
+                    </button>
+                </td>
             `;
             tbody.appendChild(tr);
-          });
         });
-    }
+    });
+}
 
     function simulerPret(idPret) {
+      currentPretId = idPret; // Stocker l'ID du prêt actuel
+      
       fetch(apiBase + `/prets/${idPret}`)
         .then(response => {
           if (!response.ok) throw new Error("Erreur réseau");
@@ -297,6 +311,15 @@
               <p class="mb-2"><strong>Coût total de l'assurance:</strong> ${(assuranceMensuelle * duree).toFixed(2)} AR</p>
               <p class="total text-lg mt-4"><strong>Coût total du crédit:</strong> ${((mensualiteTotale * duree) - montant).toFixed(2)} AR</p>
             </div>
+            
+            <div class="action-buttons">
+              <button onclick="approuverPret(${pret.id_pret})" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200">
+                Approuver le prêt
+              </button>
+              <button onclick="genererPDF()" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200">
+                Exporter en PDF
+              </button>
+            </div>
           `;
 
           // Injection dans le DOM
@@ -324,6 +347,162 @@
         });
     }
     
+    function approuverPret(idPret) {
+        if (!confirm("Êtes-vous sûr de vouloir approuver ce prêt ?")) {
+            return;
+        }
+        
+        // Récupérer l'ID client depuis le tableau des prêts
+        const pretRow = document.querySelector(`#prets-table tr[data-id="${idPret}"]`);
+        const idClient = pretRow ? pretRow.getAttribute('data-client-id') : null;
+        
+        if (!idClient) {
+            alert("Impossible de trouver les informations du client");
+            return;
+        }
+
+        fetch(apiBase + `/prets/${idPret}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                statut: 'APPROUVE',
+                id_client: idClient
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Erreur lors de la mise à jour du statut");
+            return response.json();
+        })
+        .then(data => {
+            alert("Le prêt a été approuvé avec succès");
+            chargerPrets();
+            // Masquer le bouton Approuver après approbation
+            const btnApprouver = document.querySelector(`button[onclick="approuverPret(${idPret})"]`);
+            if (btnApprouver) {
+                btnApprouver.style.display = 'none';
+                btnApprouver.disabled = true;
+                btnApprouver.textContent = 'Prêt approuvé';
+            }
+        })
+        .catch(error => {
+            console.error("Erreur:", error);
+            alert("Une erreur est survenue: " + error.message);
+        });
+    }
+        
+function genererPDF() {
+  // Récupérer les éléments de la simulation
+  const simulationContainer = document.getElementById("simulation");
+  if (!simulationContainer) {
+    alert("Aucune simulation à exporter");
+    return;
+  }
+
+  // Créer un nouveau document PDF
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const margin = 15;
+  let yPos = 20;
+
+  // Titre du document
+  pdf.setFontSize(16);
+  pdf.setTextColor(76, 29, 149);
+  pdf.text("Remboursement de prêt", pageWidth / 2, yPos, { align: 'center' });
+  yPos += 15;
+
+  // Récupérer les infos client depuis l'interface
+  const clientInfo = simulationContainer.querySelector(".grid-cols-1 div:first-child") || simulationContainer;
+  const clientName = clientInfo.querySelector("p:nth-child(1)")?.textContent.replace("Client:", "").trim() || "Non spécifié";
+  const montant = clientInfo.querySelector("p:nth-child(2)")?.textContent.replace("Montant:", "").trim() || "0 AR";
+  const duree = clientInfo.querySelector("p:nth-child(3)")?.textContent.replace("Durée:", "").trim() || "0 mois";
+
+  // Ajouter les infos client
+  pdf.setFontSize(12);
+  pdf.setTextColor(0, 0, 0);
+  pdf.text(`Client: ${clientName}`, margin, yPos);
+  yPos += 7;
+  pdf.text(`Montant: ${montant}`, margin, yPos);
+  yPos += 7;
+  pdf.text(`Durée: ${duree}`, margin, yPos);
+  yPos += 15;
+
+  // Récupérer les informations principales
+  const montantHorsAssurance = simulationContainer.querySelector(".montants-cles p:nth-child(1) span")?.textContent || "0.00";
+  const assurance = simulationContainer.querySelector(".montants-cles p:nth-child(2) span")?.textContent || "0.00";
+  const mensualiteTotale = simulationContainer.querySelector(".montants-cles p.total span")?.textContent || "0.00";
+
+  // Ajouter les informations de base
+  pdf.text(`Mensualité hors assurance: ${montantHorsAssurance} AR`, margin, yPos);
+  yPos += 7;
+  pdf.text(`Assurance mensuelle: ${assurance} AR`, margin, yPos);
+  yPos += 7;
+  pdf.text(`Mensualité totale: ${mensualiteTotale} AR`, margin, yPos);
+  yPos += 15;
+
+  // Configuration du tableau
+  const headers = ["MOIS", "DATE", "INTÉRÊTS", "CAPITAL", "ASSURANCE", "MENSUALITÉ", "RESTE DÛ"];
+  const columnWidths = [12, 25, 22, 22, 22, 22, 25];
+  const columnPositions = [margin];
+  
+  // Calculer les positions des colonnes
+  for (let i = 1; i < columnWidths.length; i++) {
+    columnPositions.push(columnPositions[i-1] + columnWidths[i-1] + 2);
+  }
+
+  // Dessiner les en-têtes
+  pdf.setFontSize(10);
+  pdf.setTextColor(76, 29, 149);
+  headers.forEach((header, i) => {
+    const align = i > 1 ? 'right' : 'left';
+    pdf.text(header, columnPositions[i], yPos, { align });
+  });
+  yPos += 5;
+
+  // Ligne de séparation
+  pdf.setDrawColor(76, 29, 149);
+  pdf.line(margin, yPos, pageWidth - margin, yPos);
+  yPos += 10;
+
+  // Récupérer les données du tableau
+  const rows = simulationContainer.querySelectorAll(".amortissement-table tbody tr");
+  
+  // Ajouter les données
+  pdf.setFontSize(9);
+  pdf.setTextColor(0, 0, 0);
+  
+  rows.forEach(row => {
+    if (yPos > 270) {
+      pdf.addPage();
+      yPos = 20;
+    }
+    
+    const cells = row.querySelectorAll("td");
+    cells.forEach((cell, i) => {
+      const align = i > 1 ? 'right' : 'left';
+      pdf.text(cell.textContent.trim(), columnPositions[i], yPos, { align });
+    });
+    yPos += 7;
+  });
+
+  // Récupérer les totaux
+  const totalInterets = simulationContainer.querySelector(".simulation-summary p:nth-child(1)")?.textContent.replace("Coût total des intérêts:", "").trim() || "0.00";
+  const totalAssurance = simulationContainer.querySelector(".simulation-summary p:nth-child(2)")?.textContent.replace("Coût total de l'assurance:", "").trim() || "0.00";
+  const totalCredit = simulationContainer.querySelector(".simulation-summary p.total")?.textContent.replace("Coût total du crédit:", "").trim() || "0.00";
+
+  // Ajouter les totaux
+  yPos += 10;
+  pdf.setFontSize(12);
+  pdf.text(`Coût total des intérêts: ${totalInterets} AR`, margin, yPos);
+  yPos += 7;
+  pdf.text(`Coût total de l'assurance: ${totalAssurance} AR`, margin, yPos);
+  yPos += 7;
+  pdf.text(`Coût total du crédit: ${totalCredit} AR`, margin, yPos);
+
+  // Enregistrer le PDF
+  pdf.save(`simulation_pret_${currentPretId}.pdf`);
+}
 
     document.addEventListener("DOMContentLoaded", chargerPrets);
   </script>
