@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 drop DATABASE tp_flight;
+=======
+>>>>>>> Davida
 CREATE DATABASE tp_flight CHARACTER SET utf8mb4;
 
 USE tp_flight;
@@ -9,6 +12,7 @@ CREATE TABLE etudiant (
     prenom VARCHAR(100),
     email VARCHAR(100),
     age INT
+<<<<<<< HEAD
 );
 
 
@@ -97,4 +101,6 @@ CREATE TABLE historique_taux_interet (
     taux_interet DECIMAL(5, 2) NOT NULL,
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_type_pret) REFERENCES types_pret(id_type_pret)
+=======
+>>>>>>> Davida
 );
