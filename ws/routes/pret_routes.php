@@ -1,17 +1,10 @@
 <?php
-
 require_once __DIR__ . '/../controllers/PretController.php';
-require_once __DIR__ . '/../controllers/ClientController.php';
-require_once __DIR__ . '/../controllers/TypePretController.php';
 
-
-
-// API routes
-Flight::route('POST /prets', ['PretController', 'create']);
-Flight::route('GET /types_pret', ['TypePretController', 'getAll']);
-Flight::route('GET /clients', ['ClientController', 'getAll']);
 Flight::route('GET /prets', ['PretController', 'getAll']);
-Flight::route('GET /clients/@id', ['ClientController', 'getById']);
-
-
-?>
+Flight::route('GET /prets/@id', ['PretController', 'getById']);
+Flight::route('GET /clients/@clientId/prets', ['PretController', 'getByClientId']);
+Flight::route('POST /prets', ['PretController', 'create']);
+Flight::route('PUT /prets/@id/status', ['PretController', 'updateStatus']);
+Flight::route('GET /prets/@id/historique', ['PretController', 'getHistorique']);
+Flight::route('POST /prets/@id/paiements', ['PretController', 'createPaiement']);

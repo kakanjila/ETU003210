@@ -10,8 +10,27 @@ class Client {
 
     public static function getById($id) {
         $db = getDB();
-        $stmt = $db->prepare("SELECT * WHERE id_client = ?");
+        $stmt = $db->prepare("SELECT * FROM clients WHERE id_client = ?");
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public static function create($data) {
+        $db = getDB();
+        $stmt = $db->prepare("INSERT INTO clients (nom, email, mdp, telephone, date_naissance) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$data->nom, $data->email, $data->mdp, $data->telephone, $data->date_naissance]);
+        return $db->lastInsertId();
+    }
+
+    public static function update($id, $data) {
+        $db = getDB();
+        $stmt = $db->prepare("UPDATE clients SET nom = ?, email = ?, mdp = ?, telephone = ?, date_naissance = ? WHERE id_client = ?");
+        $stmt->execute([$data->nom, $data->email, $data->mdp, $data->telephone, $data->date_naissance, $id]);
+    }
+
+    public static function delete($id) {
+        $db = getDB();
+        $stmt = $db->prepare("DELETE FROM clients WHERE id_client = ?");
+        $stmt->execute([$id]);
     }
 }

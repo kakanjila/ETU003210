@@ -33,7 +33,3 @@ class EtudiantController {
         Flight::json(['message' => 'Étudiant supprimé']);
     }
 }
-<<<<<<< HEAD
-?>
-=======
->>>>>>> Davida

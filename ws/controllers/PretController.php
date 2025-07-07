@@ -1,29 +1,107 @@
 <?php
 require_once __DIR__ . '/../models/Pret.php';
-require_once __DIR__ . '/../helpers/Utils.php';
+require_once __DIR__ . '/../models/Client.php';
+require_once __DIR__ . '/../models/TypesPret.php';
 
 class PretController {
-    public static function create() {
-        $data = Flight::request()->data;
-        // Validate required fields
-        $requiredFields = ['id_client', 'id_type_pret', 'montant', 'taux_interet', 'duree_mois', 'date_debut', 'date_fin', 'statut'];
-        foreach ($requiredFields as $field) {
-            if (!isset($data->$field) || empty($data->$field)) {
-                Flight::halt(400, json_encode(['error' => "Missing or empty required field: $field"]));
-                return;
-            }
-        }
-
-        try {
-            $pretId = Pret::create($data);
-            Flight::json(['message' => 'Loan created successfully', 'id_pret' => $pretId], 201);
-        } catch (Exception $e) {
-            Flight::halt(500, json_encode(['error' => 'Failed to create loan: ' . $e->getMessage()]));
-        }
+    public static function getAll() {
+        $prets = Pret::getAllWithDetails();
+        Flight::json($prets);
     }
 
-    public static function getAll() {
-        $prets = Pret::getAll();
+    public static function getById($id) {
+        $pret = Pret::getByIdWithDetails($id);
+        Flight::json($pret);
+    }
+
+    public static function getByClientId($clientId) {
+        $prets = Pret::getByClientId($clientId);
         Flight::json($prets);
+    }
+
+    public static function create() {
+        $data = Flight::request()->data;
+        
+        if (!isset($data->id_client) || !isset($data->id_type_pret) || !isset($data->montant) 
+            || !isset($data->duree_mois)) {
+            Flight::halt(400, 'Données manquantes');
+        }
+        
+        $typePret = TypesPret::getById($data->id_type_pret);
+        if (!$typePret) {
+            Flight::halt(404, 'Type de prêt non trouvé');
+        }
+        
+        $dateDebut = date('Y-m-d');
+        $dateFin = date('Y-m-d', strtotime("+{$data->duree_mois} months"));
+        
+        $pretData = [
+            'id_client' => $data->id_client,
+            'id_type_pret' => $data->id_type_pret,
+            'montant' => $data->montant,
+            'taux_interet' => $typePret['taux_interet'],
+            'duree_mois' => $data->duree_mois,
+            'date_debut' => $dateDebut,
+            'date_fin' => $dateFin,
+            'statut' => 'EN_ATTENTE'
+        ];
+        
+        $id = Pret::create($pretData);
+        
+        Pret::addToHistorique($id, "Demande de prêt créée", $data->id_client);
+        
+        Flight::json(['message' => 'Demande de prêt créée', 'id' => $id]);
+    }
+
+    public static function updateStatus($id) {
+        $data = Flight::request()->data;
+        
+        if (!isset($data->statut) || !isset($data->id_client)) {
+            Flight::halt(400, 'Données manquantes');
+        }
+        
+        Pret::updateStatus($id, $data->statut);
+        
+        Pret::addToHistorique($id, "Statut changé à: {$data->statut}", $data->id_client);
+        
+        Flight::json(['message' => 'Statut du prêt mis à jour']);
+    }
+
+    public static function getHistorique($pretId) {
+        $historique = Pret::getHistorique($pretId);
+        Flight::json($historique);
+    }
+
+    public static function createPaiement($pretId) {
+        $data = Flight::request()->data;
+        
+        if (!isset($data->montant_paye) || !isset($data->id_client)) {
+            Flight::halt(400, 'Données manquantes');
+        }
+        
+        $pret = Pret::getById($pretId);
+        if (!$pret) {
+            Flight::halt(404, 'Prêt non trouvé');
+        }
+        
+        $soldeRestant = $pret['montant'] - $data->montant_paye;
+        
+        $paiementData = [
+            'id_pret' => $pretId,
+            'date_paiement' => date('Y-m-d'),
+            'montant_paye' => $data->montant_paye,
+            'solde_restant' => $soldeRestant
+        ];
+        
+        Pret::createPaiement($paiementData);
+        
+        if ($soldeRestant <= 0) {
+            Pret::updateStatus($pretId, 'PAYE');
+            Pret::addToHistorique($pretId, "Prêt entièrement payé", $data->id_client);
+        } else {
+            Pret::addToHistorique($pretId, "Paiement effectué: {$data->montant_paye}", $data->id_client);
+        }
+        
+        Flight::json(['message' => 'Paiement enregistré']);
     }
 }
