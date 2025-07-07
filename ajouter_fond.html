@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ajouter ou modifier un fonds</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, button { margin: 5px; padding: 5px; }
+    .form-group { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>Ajouter ou modifier un fonds</h1>
+
+  <div>
+    <input type="hidden" id="id_fonds">
+    <div class="form-group">
+      <label for="nom_fonds">Nom du fonds :</label>
+      <input type="text" id="nom_fonds" placeholder="Nom du fonds">
+    </div>
+    <div class="form-group">
+      <label for="montant_total">Montant total :</label>
+      <input type="number" id="montant_total" placeholder="Montant total" step="0.01">
+    </div>
+    <div class="form-group">
+      <label for="montant_disponible">Montant disponible :</label>
+      <input type="number" id="montant_disponible" placeholder="Montant disponible" step="0.01">
+    </div>
+    <button onclick="ajouterOuModifier()">Enregistrer</button>
+    <a href="index.html">Retour à la liste</a>
+  </div>
+
+  <script>
+    const apiBase = "http://localhost/ETU003210/ws";
+
+    function ajax(method, url, data, callback) {
+      const xhr = new XMLHttpRequest();
+      xhr.open(method, apiBase + url, true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          callback(JSON.parse(xhr.responseText));
+        }
+      };
+      xhr.send(data);
+    }
+
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    function chargerFonds(id) {
+      ajax("GET", `/fonds/${id}`, null, (data) => {
+        document.getElementById("id_fonds").value = data.id_fonds;
+        document.getElementById("nom_fonds").value = data.nom_fonds;
+        document.getElementById("montant_total").value = data.montant_total;
+        document.getElementById("montant_disponible").value = data.montant_disponible;
+      });
+    }
+
+    function ajouterOuModifier() {
+      const id = document.getElementById("id_fonds").value;
+      const nom_fonds = document.getElementById("nom_fonds").value;
+      const montant_total = document.getElementById("montant_total").value;
+      const montant_disponible = document.getElementById("montant_disponible").value;
+
+      const data = `nom_fonds=${encodeURIComponent(nom_fonds)}&montant_total=${montant_total}&montant_disponible=${montant_disponible}`;
+
+      if (id) {
+        ajax("PUT", `/fonds/${id}`, data, () => {
+          window.location.href = "index.html";
+        });
+      } else {
+        ajax("POST", "/fonds", data, () => {
+          window.location.href = "index.html";
+        });
+      }
+    }
+
+    const fondId = getQueryParam("id");
+    if (fondId) {
+      chargerFonds(fondId);
+    }
+  </script>
+
+</body>
+</html>
