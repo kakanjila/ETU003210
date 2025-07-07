@@ -385,14 +385,21 @@
   });
 }
 
-// Ajouter cette nouvelle fonction
 function approuverPret(idPret, idClient) {
-  if (confirm("Êtes-vous sûr de vouloir approuver ce prêt ?")) {
-    const data = `statut=APPROUVE&id_client=${idClient}`;
-    ajax("PUT", `/prets/${idPret}/status`, data, () => {
-      chargerPrets();
-    });
-  }
+    if (confirm("Êtes-vous sûr de vouloir approuver ce prêt ?")) {
+        // Créer les données au format x-www-form-urlencoded
+        const params = new URLSearchParams({
+            'statut': 'APPROUVE',
+            'id_client': idClient.toString()
+        });
+
+        // Faire la requête AJAX
+        ajax("POST", `/prets/${idPret}/status`, params.toString(), (response) => {
+            console.log('Réponse:', response);
+            alert("Le prêt a été approuvé avec succès !");
+            chargerPrets();
+        });
+    }
 }
     
     function chargerSelectClients() {
@@ -431,7 +438,7 @@ function approuverPret(idPret, idClient) {
       data.append('duree_mois', document.getElementById("pret-duree").value);
     
       if (id) {
-        ajax("PUT", `/prets/${id}`, data, () => {
+        ajax("POST", `/prets/${id}`, data, () => {
           resetFormPret();
           chargerPrets();
         });
@@ -448,7 +455,7 @@ function approuverPret(idPret, idClient) {
       const statut = document.getElementById("pret-statut").value;
       
       if(id) {
-        ajax("PUT", `/prets/${id}/status`, `statut=${statut}`, () => {
+        ajax("POST", `/prets/${id}/status`, `statut=${statut}`, () => {
           document.getElementById("pret-id-statut").value = "";
           chargerPrets();
         });

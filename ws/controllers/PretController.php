@@ -54,17 +54,25 @@ class PretController {
     }
 
     public static function updateStatus($id) {
-        $data = Flight::request()->data;
+        // Récupérer les données brutes
+        $request = Flight::request();
         
-        if (!isset($data->statut) || !isset($data->id_client)) {
-            Flight::halt(400, 'Données manquantes');
+        // Récupérer les données du corps de la requête
+        $statut = $request->data->statut;
+        $idClient = $request->data->id_client;
+        
+        if (empty($statut) || empty($idClient)) {
+            Flight::halt(400, json_encode(['error' => 'Données manquantes']));
+            return;
         }
         
-        Pret::updateStatus($id, $data->statut);
-        
-        Pret::addToHistorique($id, "Statut changé à: {$data->statut}", $data->id_client);
-        
-        Flight::json(['message' => 'Statut du prêt mis à jour']);
+        try {
+            Pret::updateStatus($id, $statut);
+            Pret::addToHistorique($id, "Statut changé à: {$statut}", $idClient);
+            Flight::json(['message' => 'Statut du prêt mis à jour']);
+        } catch (Exception $e) {
+            Flight::halt(500, json_encode(['error' => 'Erreur lors de la mise à jour du statut']));
+        }
     }
 
     public static function getHistorique($pretId) {
