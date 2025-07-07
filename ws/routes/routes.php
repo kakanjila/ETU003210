@@ -60,3 +60,14 @@ Flight::route('DELETE /paiements/@id', ['PaiementPretController', 'delete']);
 // Historiques
 Flight::route('GET /prets/@id_pret/historique', ['HistoriquePretController', 'getByPret']);
 Flight::route('GET /types-pret/@id_type_pret/historique-taux', ['HistoriqueTauxInteretController', 'getByTypePret']);
+
+// PaiementPretController
+Flight::route('GET /clients/@id_client/paiements/total/@debut_mois/@debut_annee/@fin_mois/@fin_annee', ['PaiementPretController', 'getTotalPaiementsClient']);
+Flight::route('GET /paiements/total/@debut_mois/@debut_annee/@fin_mois/@fin_annee', ['PaiementPretController', 'getTotalPaiementsPeriode']);
+
+// PretController
+Flight::route('GET /clients/@id_client/mensualites', ['PretController', 'calculerMensualiteClient']);
+Flight::route('GET /clients/mensualites', function() {
+    $result = PretController::listerClientsMensualites(true);
+    Flight::json($result); 
+});

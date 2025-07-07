@@ -9,6 +9,7 @@
     table { border-collapse: collapse; width: 100%; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     th { background-color: #f2f2f2; }
+    .error { color: red; }
   </style>
 </head>
 <body>
@@ -16,7 +17,10 @@
   <h1>Gestion des fonds</h1>
   <div>
     <a href="ajouter_fond.html">Ajouter un nouveau fonds</a>
+    <a href="interets.html">Interet</a>
+    <a href="clients_mensualites.php">clients_mensualites</a>
   </div>
+  <div id="error-message" class="error"></div>
 
   <table id="table-fonds">
     <thead>
@@ -35,16 +39,25 @@
   <script>
     const apiBase = "http://localhost/ETU003210/ws";
 
-    function ajax(method, url, data, callback) {
+    function ajax(method, url, data, callback, errorCallback) {
       const xhr = new XMLHttpRequest();
       xhr.open(method, apiBase + url, true);
       xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
       xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          callback(JSON.parse(xhr.responseText));
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            callback(JSON.parse(xhr.responseText));
+          } else {
+            errorCallback(`Erreur ${xhr.status}: ${xhr.statusText}`);
+          }
         }
       };
+      xhr.onerror = () => errorCallback("Erreur réseau lors de la requête.");
       xhr.send(data);
+    }
+
+    function displayError(message) {
+      document.getElementById("error-message").textContent = message;
     }
 
     function chargerFonds() {
@@ -66,10 +79,16 @@
           `;
           tbody.appendChild(tr);
         });
+      }, (error) => {
+        displayError(error);
       });
     }
 
     function modifierFonds(id) {
+      if (!id) {
+        displayError("ID du fonds manquant.");
+        return;
+      }
       window.location.href = `ajouter_fond.html?id=${id}`;
     }
 
@@ -77,6 +96,8 @@
       if (confirm("Supprimer ce fonds ?")) {
         ajax("DELETE", `/fonds/${id}`, null, () => {
           chargerFonds();
+        }, (error) => {
+          displayError(error);
         });
       }
     }

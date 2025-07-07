@@ -45,7 +45,7 @@ CREATE TABLE clients (
 
 -- Création de la table pour les types de prêts
 CREATE TABLE types_pret (
-    id_type_pret INT PRIMARY KEY AUTO_INCREMENT,
+    id_type_pret INT PRIMARY KEY AUTO_INCREMENT,    
     id_etablissement INT,
     nom_type VARCHAR(100) NOT NULL,
     taux_interet DECIMAL(5, 2) NOT NULL,

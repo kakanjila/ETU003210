@@ -7,25 +7,31 @@
     body { font-family: sans-serif; padding: 20px; }
     input, button { margin: 5px; padding: 5px; }
     .form-group { margin-bottom: 10px; }
+    .error { color: red; }
   </style>
 </head>
 <body>
 
   <h1>Ajouter ou modifier un fonds</h1>
+  <div id="error-message" class="error"></div>
 
   <div>
     <input type="hidden" id="id_fonds">
     <div class="form-group">
+      <label for="id_etablissement">ID Établissement :</label>
+      <input type="number" id="id_etablissement" placeholder="ID de l'établissement" min="1" required>
+    </div>
+    <div class="form-group">
       <label for="nom_fonds">Nom du fonds :</label>
-      <input type="text" id="nom_fonds" placeholder="Nom du fonds">
+      <input type="text" id="nom_fonds" placeholder="Nom du fonds" required>
     </div>
     <div class="form-group">
       <label for="montant_total">Montant total :</label>
-      <input type="number" id="montant_total" placeholder="Montant total" step="0.01">
+      <input type="number" id="montant_total" placeholder="Montant total" step="0.01" min="0" required>
     </div>
     <div class="form-group">
       <label for="montant_disponible">Montant disponible :</label>
-      <input type="number" id="montant_disponible" placeholder="Montant disponible" step="0.01">
+      <input type="number" id="montant_disponible" placeholder="Montant disponible" step="0.01" min="0" required>
     </div>
     <button onclick="ajouterOuModifier()">Enregistrer</button>
     <a href="index.html">Retour à la liste</a>
@@ -34,16 +40,25 @@
   <script>
     const apiBase = "http://localhost/ETU003210/ws";
 
-    function ajax(method, url, data, callback) {
+    function ajax(method, url, data, callback, errorCallback) {
       const xhr = new XMLHttpRequest();
       xhr.open(method, apiBase + url, true);
       xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
       xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          callback(JSON.parse(xhr.responseText));
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            callback(JSON.parse(xhr.responseText));
+          } else {
+            errorCallback(`Erreur ${xhr.status}: ${xhr.responseText || xhr.statusText}`);
+          }
         }
       };
+      xhr.onerror = () => errorCallback("Erreur réseau lors de la requête.");
       xhr.send(data);
+    }
+
+    function displayError(message) {
+      document.getElementById("error-message").textContent = message;
     }
 
     function getQueryParam(param) {
@@ -53,28 +68,61 @@
 
     function chargerFonds(id) {
       ajax("GET", `/fonds/${id}`, null, (data) => {
-        document.getElementById("id_fonds").value = data.id_fonds;
-        document.getElementById("nom_fonds").value = data.nom_fonds;
-        document.getElementById("montant_total").value = data.montant_total;
-        document.getElementById("montant_disponible").value = data.montant_disponible;
+        console.log("Données reçues pour modification:", data);
+        document.getElementById("id_fonds").value = data.id_fonds || "";
+        document.getElementById("id_etablissement").value = data.id_etablissement || "";
+        document.getElementById("nom_fonds").value = data.nom_fonds || "";
+        document.getElementById("montant_total").value = data.montant_total || "";
+        document.getElementById("montant_disponible").value = data.montant_disponible || "";
+      }, (error) => {
+        displayError(`Échec du chargement du fonds: ${error}`);
       });
     }
 
     function ajouterOuModifier() {
       const id = document.getElementById("id_fonds").value;
+      const id_etablissement = document.getElementById("id_etablissement").value;
       const nom_fonds = document.getElementById("nom_fonds").value;
       const montant_total = document.getElementById("montant_total").value;
       const montant_disponible = document.getElementById("montant_disponible").value;
 
-      const data = `nom_fonds=${encodeURIComponent(nom_fonds)}&montant_total=${montant_total}&montant_disponible=${montant_disponible}`;
+      // Validation des champs
+      if (!id_etablissement || !nom_fonds || !montant_total || !montant_disponible) {
+        displayError("Veuillez remplir tous les champs.");
+        return;
+      }
+      if (parseFloat(montant_disponible) > parseFloat(montant_total)) {
+        displayError("Le montant disponible ne peut pas dépasser le montant total.");
+        return;
+      }
+      if (parseFloat(montant_total) < 0 || parseFloat(montant_disponible) < 0) {
+        displayError("Les montants ne peuvent pas être négatifs.");
+        return;
+      }
+      if (!Number.isInteger(parseInt(id_etablissement)) || parseInt(id_etablissement) <= 0) {
+        displayError("L'ID de l'établissement doit être un entier positif.");
+        return;
+      }
+
+      // Construction des données
+      const data = `id_etablissement=${encodeURIComponent(id_etablissement)}&nom_fonds=${encodeURIComponent(nom_fonds)}&montant_total=${encodeURIComponent(montant_total)}&montant_disponible=${encodeURIComponent(montant_disponible)}`;
+      console.log("Données envoyées:", data);
 
       if (id) {
         ajax("PUT", `/fonds/${id}`, data, () => {
+          console.log("Mise à jour réussie");
           window.location.href = "index.html";
+        }, (error) => {
+          console.error("Erreur lors de la mise à jour:", error);
+          displayError(`Échec de la mise à jour: ${error}`);
         });
       } else {
         ajax("POST", "/fonds", data, () => {
+          console.log("Ajout réussi");
           window.location.href = "index.html";
+        }, (error) => {
+          console.error("Erreur lors de l'ajout:", error);
+          displayError(`Échec de l'ajout: ${error}`);
         });
       }
     }
