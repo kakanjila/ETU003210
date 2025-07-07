@@ -1,5 +1,18 @@
 {
     "require": {
-        "mikecao/flight": "^2.0"
+        "mikecao/flight": "^2.0",
+        "cweagans/composer-patches": "^1.7"
+    },
+    "config": {
+        "allow-plugins": {
+            "cweagans/composer-patches": true
+        }
+    },
+    "extra": {
+        "patches": {
+            "mikecao/flight": {
+                "PHP 8.1+ compatibility": "patches/flight-php81.patch"
+            }
+        }
     }
 }

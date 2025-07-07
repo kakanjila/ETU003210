@@ -53,8 +53,8 @@ class Pret {
     public static function create($data) {
         $db = getDB();
         $stmt = $db->prepare("INSERT INTO prets 
-                            (id_client, id_type_pret, montant, taux_interet, duree_mois, date_debut, date_fin, statut) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                            (id_client, id_type_pret, montant, taux_interet, duree_mois, date_debut, date_fin, statut, taux_assurance) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $data['id_client'], 
             $data['id_type_pret'], 
@@ -63,7 +63,8 @@ class Pret {
             $data['duree_mois'],
             $data['date_debut'],
             $data['date_fin'],
-            $data['statut']
+            $data['statut'],
+            $data['taux_assurance']
         ]);
         return $db->lastInsertId();
     }

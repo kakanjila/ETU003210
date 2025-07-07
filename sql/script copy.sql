@@ -68,6 +68,10 @@ CREATE TABLE prets (
     FOREIGN KEY (id_type_pret) REFERENCES types_pret(id_type_pret)
 );
 
+ALTER TABLE prets
+ADD COLUMN taux_assurance DECIMAL(5,2) DEFAULT NULL;
+
+
 -- Création de la table pour les paiements des prêts
 CREATE TABLE paiements_pret (
     id_paiement INT PRIMARY KEY AUTO_INCREMENT,

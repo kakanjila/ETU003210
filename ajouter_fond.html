@@ -2,33 +2,243 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Ajouter ou modifier un fonds</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajouter ou modifier un fonds - BMOI</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input, button { margin: 5px; padding: 5px; }
-    .form-group { margin-bottom: 10px; }
+    /* Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: #f5f3ff;
+      color: #1f2937;
+      line-height: 1.6;
+      padding: 0;
+    }
+    
+    /* Header */
+    header {
+      background-color: #4C1D95;
+      color: white;
+      padding: 15px 0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .logo svg {
+      color: #A78BFA;
+    }
+    
+    /* Navigation */
+    nav {
+      background-color: white;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+    
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+    }
+    
+    .nav-link {
+      padding: 12px 0;
+      color: #6B7280;
+      font-weight: 500;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    
+    .nav-link:hover {
+      color: #4C1D95;
+    }
+    
+    .nav-link.active {
+      color: #4C1D95;
+      border-bottom-color: #4C1D95;
+    }
+    
+    /* Main Content */
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 30px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      color: #4C1D95;
+      margin-bottom: 25px;
+      font-size: 1.8rem;
+      border-bottom: 2px solid #EDE9FE;
+      padding-bottom: 10px;
+    }
+    
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #4B5563;
+      margin-bottom: 8px;
+    }
+    
+    input[type="text"],
+    input[type="number"],
+    input[type="hidden"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.2s;
+      background-color: white;
+    }
+    
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #8B5CF6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+    
+    /* Button Styles */
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    
+    button {
+      padding: 12px 24px;
+      background-color: #4C1D95;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    button:hover {
+      background-color: #7C3AED;
+    }
+    
+    .back-link {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #E5E7EB;
+      color: #4B5563;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+    
+    .back-link:hover {
+      background-color: #D1D5DB;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+        margin: 20px 15px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      button, .back-link {
+        width: 100%;
+        text-align: center;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <h1>Ajouter ou modifier un fonds</h1>
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+          <path d="M12 18V6"></path>
+        </svg>
+        <span>BMOI</span>
+      </div>
+      <nav class="hidden md:flex space-x-6">
+        <a href="#" class="hover:text-bmoi-accent transition duration-200 font-medium">Tableau de bord</a>
+        <a href="#" class="hover:text-bmoi-accent transition duration-200 font-medium">Déconnexion</a>
+      </nav>
+    </div>
+  </header>
+  
+  <nav>
+    <div class="nav-container">
+      <a href="#" class="nav-link">Clients</a>
+      <a href="#" class="nav-link">Prêts</a>
+      <a href="#" class="nav-link active">Fonds</a>
+      <a href="#" class="nav-link">Transactions</a>
+    </div>
+  </nav>
 
-  <div>
-    <input type="hidden" id="id_fonds">
-    <div class="form-group">
-      <label for="nom_fonds">Nom du fonds :</label>
-      <input type="text" id="nom_fonds" placeholder="Nom du fonds">
+  <div class="container">
+    <h1>Ajouter ou modifier un fonds</h1>
+
+    <div>
+      <input type="hidden" id="id_fonds">
+      <div class="form-group">
+        <label for="nom_fonds">Nom du fonds</label>
+        <input type="text" id="nom_fonds" placeholder="Entrez le nom du fonds">
+      </div>
+      <div class="form-group">
+        <label for="montant_total">Montant total (AR)</label>
+        <input type="number" id="montant_total" placeholder="0.00" step="0.01" min="0">
+      </div>
+      <div class="form-group">
+        <label for="montant_disponible">Montant disponible (AR)</label>
+        <input type="number" id="montant_disponible" placeholder="0.00" step="0.01" min="0">
+      </div>
+      
+      <div class="button-group">
+        <button onclick="ajouterOuModifier()">Enregistrer</button>
+        <a href="index.html" class="back-link">Retour à la liste</a>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="montant_total">Montant total :</label>
-      <input type="number" id="montant_total" placeholder="Montant total" step="0.01">
-    </div>
-    <div class="form-group">
-      <label for="montant_disponible">Montant disponible :</label>
-      <input type="number" id="montant_disponible" placeholder="Montant disponible" step="0.01">
-    </div>
-    <button onclick="ajouterOuModifier()">Enregistrer</button>
-    <a href="index.html">Retour à la liste</a>
   </div>
 
   <script>
@@ -65,6 +275,11 @@
       const nom_fonds = document.getElementById("nom_fonds").value;
       const montant_total = document.getElementById("montant_total").value;
       const montant_disponible = document.getElementById("montant_disponible").value;
+
+      if (!nom_fonds || !montant_total || !montant_disponible) {
+        alert("Veuillez remplir tous les champs obligatoires.");
+        return;
+      }
 
       const data = `nom_fonds=${encodeURIComponent(nom_fonds)}&montant_total=${montant_total}&montant_disponible=${montant_disponible}`;
 

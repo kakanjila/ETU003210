@@ -4,7 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Application de Gestion Bancaire - BMOI</title>
-<style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bmoi: {
+              primary: '#4C1D95',
+              secondary: '#7C3AED',
+              light: '#8B5CF6',
+              accent: '#A78BFA',
+              promo: '#DDD6FE'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
     /* Reset et styles de base */
     * {
       box-sizing: border-box;
@@ -17,426 +35,291 @@
       background-color: #f5f3ff;
       color: #333;
       line-height: 1.6;
-      padding: 0;
     }
     
-    h1, h2, h3 {
-      color: #4C1D95;
-      margin-bottom: 15px;
-    }
-    
-    /* Header */
-    header {
-      background-color: #4C1D95;
-      color: white;
-      padding: 15px 0;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-    
+    /* Header amélioré */
     .header-container {
       max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
     
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.5rem;
-      font-weight: bold;
+    /* Bannière admin */
+    .admin-banner {
+      background: linear-gradient(135deg, #4C1D95 0%, #7C3AED 100%);
     }
     
-    .logo svg {
-      color: #A78BFA;
+    /* Navigation secondaire */
+    .secondary-nav {
+      scrollbar-width: none; /* Pour Firefox */
     }
     
-    /* Navigation */
-    nav {
+    .secondary-nav::-webkit-scrollbar {
+      display: none; /* Pour Chrome/Safari */
+    }
+    
+    /* Conteneur principal */
+    .main-container {
+      max-width: 1200px;
       background-color: white;
+      border-radius: 0.5rem;
       box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
     }
     
-    .nav-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-      display: flex;
-      gap: 20px;
-      overflow-x: auto;
-    }
-    
-    .nav-link {
-      padding: 12px 0;
-      color: #6B7280;
-      font-weight: 500;
-      white-space: nowrap;
-      border-bottom: 2px solid transparent;
-      transition: all 0.3s;
-    }
-    
-    .nav-link:hover {
-      color: #4C1D95;
-    }
-    
-    .nav-link.active {
-      color: #4C1D95;
-      border-bottom-color: #4C1D95;
-    }
-    
-    /* Layout */
-    .container {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 20px;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Onglets */
-    .tabs {
-      display: flex;
-      margin-bottom: 20px;
-      border-bottom: 1px solid #E5E7EB;
-    }
-    
-    .tab-btn {
-      padding: 10px 20px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      color: #6B7280;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s;
-      font-weight: 500;
-    }
-    
-    .tab-btn:hover {
-      color: #7C3AED;
-    }
-    
-    .tab-btn.active {
-      color: #7C3AED;
-      border-bottom-color: #7C3AED;
-      font-weight: 600;
-    }
-    
-    /* Sections */
-    .section {
-      display: none;
-      padding: 20px 0;
-    }
-    
-    .section.active {
-      display: block;
-    }
-    
-    /* Formulaires */
-    .form-group {
-      margin-bottom: 20px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      align-items: center;
-    }
-    
+    /* Styles des formulaires */
     .form-container {
       background-color: #F9FAFB;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
     }
     
-    label {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      color: #4B5563;
-      margin-bottom: 5px;
-    }
-    
-    input, select, button {
-      padding: 10px 12px;
-      border: 1px solid #D1D5DB;
-      border-radius: 6px;
-      font-size: 14px;
-      transition: all 0.2s;
-    }
-    
-    input:focus, select:focus {
-      outline: none;
-      border-color: #8B5CF6;
-      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-    }
-    
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="number"],
-    input[type="date"],
-    select {
-      flex: 1;
-      min-width: 200px;
-      background-color: white;
-    }
-    
-    button {
-      background-color: #4C1D95;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-weight: 500;
-      border-radius: 6px;
-      padding: 10px 16px;
-    }
-    
-    button:hover {
-      background-color: #7C3AED;
-    }
-    
-    button.secondary {
-      background-color: #E5E7EB;
-      color: #4B5563;
-    }
-    
-    button.secondary:hover {
-      background-color: #D1D5DB;
-    }
-    
-    button.danger {
-      background-color: #DC2626;
-    }
-    
-    button.danger:hover {
-      background-color: #B91C1C;
-    }
-    
-    /* Tables */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
+    /* Styles des tables */
+    .data-table {
       box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
     }
     
-    th, td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid #E5E7EB;
-    }
-    
-    th {
+    .data-table th {
       background-color: #F3F4F6;
-      font-weight: 600;
-      color: #4B5563;
     }
     
-    tr:hover {
-      background-color: #F9FAFB;
-    }
-    
-    /* Modals */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: white;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      z-index: 1000;
-      width: 80%;
-      max-width: 500px;
-    }
-    
-    .modal h3 {
-      margin-bottom: 20px;
-      color: #4C1D95;
-      font-size: 1.25rem;
-    }
-    
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    
-    .overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0,0,0,0.5);
-      z-index: 999;
-    }
-    
-    /* Responsive */
+    /* Styles responsives */
     @media (max-width: 768px) {
       .form-group {
         flex-direction: column;
-        align-items: stretch;
       }
       
       .modal {
         width: 95%;
       }
-      
-      .header-container, .nav-container {
-        padding: 0 15px;
-      }
     }
-</style>
+  </style>
 </head>
-<body>
-  <header>
-    <div class="header-container">
-      <div class="logo">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
-          <path d="M12 18V6"></path>
+<body class="bg-gray-50">
+
+  <!-- Header Principal -->
+  <header class="bg-bmoi-primary text-white shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-bmoi-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span>BMOI</span>
+        <span class="text-2xl font-bold">BMOI</span>
       </div>
+      
       <nav class="hidden md:flex space-x-6">
         <a href="#" class="hover:text-bmoi-accent transition duration-200 font-medium">Tableau de bord</a>
         <a href="#" class="hover:text-bmoi-accent transition duration-200 font-medium">Déconnexion</a>
       </nav>
+      
+      <button class="md:hidden text-white focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
     </div>
   </header>
-  
-  <nav>
-    <div class="nav-container">
-      <a href="#" class="nav-link">Clients</a>
-      <a href="#" class="nav-link active">Prêts</a>
-      <a href="#" class="nav-link">Comptes</a>
-      <a href="#" class="nav-link">Transactions</a>
+
+  <!-- Bannière Admin -->
+  <div class="admin-banner text-white py-6">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-2xl md:text-3xl font-bold mb-2">Tableau de Bord Administrateur</h2>
+      <p class="text-lg md:text-xl">Gestion complète des clients et des prêts</p>
+      <div class="mt-4 flex justify-center gap-4">
+        <button class="bg-white text-bmoi-primary font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition duration-200 shadow-lg">
+          Statistiques
+        </button>
+        <button class="bg-bmoi-accent text-white font-bold py-2 px-6 rounded-full hover:bg-bmoi-light transition duration-200 shadow-lg">
+          Rapports
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Secondaire -->
+  <nav class="bg-white shadow-md">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-center space-x-6 py-3 overflow-x-auto secondary-nav">
+        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Clients</a>
+        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-bmoi-secondary transition duration-200">Prêts</a>
+        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Comptes</a>
+        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Transactions</a>
+        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Simulations</a>
+      </div>
     </div>
   </nav>
 
-<div class="container">
-    <h1>Application de Gestion Bancaire</h1>
-    
-    <div class="tabs">
-      <button class="tab-btn active" onclick="showSection('prets')">Prêts</button>
-      <button class="tab-btn" onclick="showSection('clients')">Clients</button>
-    </div>
-    
-    <div id="prets-section" class="section active">
-      <h2>Gestion des Prêts</h2>
+  <!-- Contenu Principal -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="main-container p-6">
+      <h1 class="text-2xl font-bold text-bmoi-primary mb-6">Application de Gestion Bancaire</h1>
       
-      <div class="form-container">
-        <h3>Formulaire de prêt</h3>
-        <div class="form-group">
-          <input type="hidden" id="pret-id">
-          <select id="pret-client" required>
-            <option value="">Sélectionner un client</option>
-          </select>
-          <select id="pret-type" required>
-            <option value="">Sélectionner un type</option>
-          </select>
-          <input type="number" id="pret-montant" placeholder="Montant" required>
-          <input type="number" id="pret-duree" placeholder="Durée (mois)" required>
-          <button onclick="gererPret()">Valider</button>
+      <div class="tabs flex border-b border-gray-200 mb-6">
+        <button class="tab-btn py-2 px-4 font-medium text-bmoi-primary border-b-2 border-bmoi-primary" onclick="showSection('prets')">Prêts</button>
+        <button class="tab-btn py-2 px-4 font-medium text-gray-500 hover:text-bmoi-secondary" onclick="showSection('clients')">Clients</button>
+      </div>
+      
+      <div id="prets-section" class="section">
+        <h2 class="text-xl font-semibold text-bmoi-primary mb-4">Gestion des Prêts</h2>
+        
+        <div class="form-container p-4 rounded-lg mb-6">
+          <h3 class="text-lg font-medium text-gray-700 mb-3">Formulaire de prêt</h3>
+          <div class="form-group flex flex-wrap gap-4 mb-4">
+            <input type="hidden" id="pret-id">
+            <div class="flex-1 min-w-[200px]">
+              <label for="pret-client" class="block text-sm font-medium text-gray-700 mb-1">Client</label>
+              <select id="pret-client" class="w-full p-2 border border-gray-300 rounded-md" required>
+                <option value="">Sélectionner un client</option>
+              </select>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label for="pret-type" class="block text-sm font-medium text-gray-700 mb-1">Type de prêt</label>
+              <select id="pret-type" class="w-full p-2 border border-gray-300 rounded-md" required>
+                <option value="">Sélectionner un type</option>
+              </select>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label for="pret-montant" class="block text-sm font-medium text-gray-700 mb-1">Montant (AR)</label>
+              <input type="number" id="pret-montant" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Montant" required>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label for="pret-duree" class="block text-sm font-medium text-gray-700 mb-1">Durée (mois)</label>
+              <input type="number" id="pret-duree" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Durée" required>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="avec-assurance" onchange="toggleAssuranceField()" class="h-4 w-4 text-bmoi-primary">
+              <label for="avec-assurance" class="text-sm font-medium text-gray-700">Inclure une assurance</label>
+            </div>
+            <div id="assurance-container" class="hidden flex-1 min-w-[200px]">
+              <label for="taux-assurance" class="block text-sm font-medium text-gray-700 mb-1">Taux assurance (%)</label>
+              <input type="number" id="taux-assurance" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Taux" step="0.01" min="0">
+            </div>
+            <button onclick="gererPret()" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200 mt-6">
+              Valider
+            </button>
+          </div>
+          
+          <div class="form-group flex flex-wrap gap-4">
+            <h3 class="text-lg font-medium text-gray-700 w-full">Changer statut</h3>
+            <input type="hidden" id="pret-id-statut">
+            <div class="flex-1 min-w-[200px]">
+              <select id="pret-statut" class="w-full p-2 border border-gray-300 rounded-md">
+                <option value="EN_ATTENTE">En attente</option>
+                <option value="APPROUVE">Approuvé</option>
+                <option value="REJETE">Rejeté</option>
+              </select>
+            </div>
+            <button onclick="changerStatutPret()" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200">
+              Modifier
+            </button>
+          </div>
         </div>
         
-        <div class="form-group">
-          <h3>Changer statut</h3>
-          <input type="hidden" id="pret-id-statut">
-          <select id="pret-statut">
-            <option value="EN_ATTENTE">En attente</option>
-            <option value="APPROUVE">Approuvé</option>
-            <option value="REJETE">Rejeté</option>
-          </select>
-          <button onclick="changerStatutPret()">Modifier</button>
+        <div class="overflow-x-auto">
+          <table id="table-prets" class="data-table w-full border-collapse">
+            <thead>
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">ID</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">Client</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">Type</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">Montant</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">Statut</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">Assurance</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200"></tbody>
+          </table>
         </div>
       </div>
       
-      <table id="table-prets">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Client</th>
-            <th>Type</th>
-            <th>Montant</th>
-            <th>Statut</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    
-    <div id="clients-section" class="section">
-      <h2>Gestion des Clients</h2>
-      
-      <div class="form-container">
-        <div class="form-group">
-          <input type="hidden" id="client-id">
-          <input type="text" id="client-nom" placeholder="Nom" required>
-          <input type="email" id="client-email" placeholder="Email" required>
-          <input type="password" id="client-mdp" placeholder="Mot de passe" required>
-          <input type="text" id="client-tel" placeholder="Téléphone">
-          <input type="date" id="client-naissance" placeholder="Date de naissance">
-          <button onclick="gererClient()">Valider</button>
+      <div id="clients-section" class="section hidden">
+        <h2 class="text-xl font-semibold text-bmoi-primary mb-4">Gestion des Clients</h2>
+        
+        <div class="form-container p-4 rounded-lg mb-6">
+          <div class="form-group flex flex-wrap gap-4">
+            <input type="hidden" id="client-id">
+            <div class="flex-1 min-w-[200px]">
+              <label for="client-nom" class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+              <input type="text" id="client-nom" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Nom" required>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label for="client-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input type="email" id="client-email" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Email" required>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label for="client-mdp" class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+              <input type="password" id="client-mdp" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Mot de passe" required>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label for="client-tel" class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+              <input type="text" id="client-tel" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Téléphone">
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label for="client-naissance" class="block text-sm font-medium text-gray-700 mb-1">Date de naissance</label>
+              <input type="date" id="client-naissance" class="w-full p-2 border border-gray-300 rounded-md">
+            </div>
+            <button onclick="gererClient()" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200 mt-6">
+              Valider
+            </button>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table id="table-clients" class="data-table w-full border-collapse">
+            <thead>
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">ID</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">Nom</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">Email</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">Téléphone</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200"></tbody>
+          </table>
         </div>
       </div>
-      
-      <table id="table-clients">
+    </div>
+  </main>
+  
+  <!-- Modals -->
+  <div id="paiement-modal" class="modal fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+      <h3 class="text-lg font-medium text-bmoi-primary mb-4">Paiement du prêt</h3>
+      <input type="hidden" id="paiement-pret-id">
+      <input type="hidden" id="paiement-client-id">
+      <div class="mb-4">
+        <label for="paiement-montant" class="block text-sm font-medium text-gray-700 mb-1">Montant à payer (AR)</label>
+        <input type="number" id="paiement-montant" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Montant" required>
+      </div>
+      <div class="flex justify-end gap-3">
+        <button onclick="fermerPaiementModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-200">
+          Fermer
+        </button>
+        <button onclick="effectuerPaiement()" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-2 px-4 rounded-md transition duration-200">
+          Valider
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="paiement-overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+  
+  <div id="historique-modal" class="modal fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[80vh] overflow-auto">
+      <h3 class="text-lg font-medium text-bmoi-primary mb-4">Historique du prêt</h3>
+      <table id="table-historique" class="w-full border-collapse">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Téléphone</th>
-            <th>Actions</th>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700 uppercase">Date</th>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700 uppercase">Description</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody class="bg-white divide-y divide-gray-200"></tbody>
       </table>
+      <div class="flex justify-end mt-4">
+        <button onclick="fermerHistoriqueModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-200">
+          Fermer
+        </button>
+      </div>
     </div>
   </div>
-  
-  <div id="paiement-modal" class="modal">
-    <h3>Paiement du prêt</h3>
-    <input type="hidden" id="paiement-pret-id">
-    <input type="hidden" id="paiement-client-id">
-    <div class="form-group">
-      <input type="number" id="paiement-montant" placeholder="Montant à payer" required>
-    </div>
-    <div class="modal-actions">
-      <button class="secondary" onclick="fermerPaiementModal()">Fermer</button>
-      <button onclick="effectuerPaiement()">Valider le paiement</button>
-    </div>
-  </div>
-  <div id="paiement-overlay" class="overlay"></div>
-  
-  <div id="historique-modal" class="modal" style="width: 80%; max-width: 800px;">
-    <h3>Historique du prêt</h3>
-    <table id="table-historique">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div class="modal-actions">
-      <button class="secondary" onclick="fermerHistoriqueModal()">Fermer</button>
-    </div>
-  </div>
-  <div id="historique-overlay" class="overlay"></div>
+  <div id="historique-overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
 
   <script>
     // API Configuration
@@ -460,16 +343,23 @@
     }
     
     function showSection(section) {
+      // Mettre à jour les onglets
       document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
+        btn.classList.remove('border-bmoi-primary', 'text-bmoi-primary');
+        btn.classList.add('text-gray-500', 'hover:text-bmoi-secondary', 'border-transparent');
       });
-      document.querySelector(`.tab-btn[onclick="showSection('${section}')"]`).classList.add('active');
       
+      const activeTab = document.querySelector(`.tab-btn[onclick="showSection('${section}')"]`);
+      activeTab.classList.remove('text-gray-500', 'hover:text-bmoi-secondary', 'border-transparent');
+      activeTab.classList.add('border-bmoi-primary', 'text-bmoi-primary');
+      
+      // Afficher la section correspondante
       document.querySelectorAll('.section').forEach(sec => {
-        sec.classList.remove('active');
+        sec.classList.add('hidden');
       });
-      document.getElementById(section + '-section').classList.add('active');
+      document.getElementById(section + '-section').classList.remove('hidden');
       
+      // Charger les données si nécessaire
       if(section === 'prets') chargerPrets();
       if(section === 'clients') chargerClients();
     }
@@ -483,16 +373,18 @@
         tbody.innerHTML = "";
         data.forEach(p => {
           const tr = document.createElement("tr");
+          tr.className = "hover:bg-gray-50";
           tr.innerHTML = `
-            <td>${p.id_pret}</td>
-            <td>${p.client_nom}</td>
-            <td>${p.type_pret_nom} (${p.taux_interet}%)</td>
-            <td>${p.montant.toLocaleString()} €</td>
-            <td>${p.statut}</td>
-            <td>
-              <button onclick='editerPret(${JSON.stringify(p)})'>Éditer</button>
-              <button onclick='afficherPaiementPret(${p.id_pret}, ${p.id_client})'>Payer</button>
-              <button onclick='afficherHistoriquePret(${p.id_pret})'>Historique</button>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${p.id_pret}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${p.client_nom}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${p.type_pret_nom} (${p.taux_interet}%)</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${p.montant.toLocaleString()} AR</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${p.statut}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${p.taux_assurance || '-'}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+              <button onclick='editerPret(${JSON.stringify(p)})' class="text-bmoi-primary hover:text-bmoi-secondary mr-2">Éditer</button>
+              <button onclick='afficherPaiementPret(${p.id_pret}, ${p.id_client})' class="text-green-600 hover:text-green-800 mr-2">Payer</button>
+              <button onclick='afficherHistoriquePret(${p.id_pret})' class="text-blue-600 hover:text-blue-800">Historique</button>
             </td>
           `;
           tbody.appendChild(tr);
@@ -530,20 +422,31 @@
       const id = document.getElementById("pret-id").value;
       const data = new URLSearchParams();
       
+      const withAssurance = document.getElementById("avec-assurance").checked;
+      const tauxAssurance = document.getElementById("taux-assurance").value;
+
       data.append('id_client', document.getElementById("pret-client").value);
       data.append('id_type_pret', document.getElementById("pret-type").value);
       data.append('montant', document.getElementById("pret-montant").value);
       data.append('duree_mois', document.getElementById("pret-duree").value);
-    
+
+      if (withAssurance && tauxAssurance.trim() !== "") {
+          data.append('taux_assurance', tauxAssurance);
+      } else {
+          data.append('taux_assurance', "");
+      }
+
       if (id) {
         ajax("PUT", `/prets/${id}`, data, () => {
           resetFormPret();
           chargerPrets();
+          alert("Prêt mis à jour avec succès");
         });
       } else {
         ajax("POST", "/prets", data, (response) => {
           resetFormPret();
           chargerPrets();
+          alert("Prêt créé avec succès");
         });
       }
     }
@@ -556,6 +459,7 @@
         ajax("PUT", `/prets/${id}/status`, `statut=${statut}`, () => {
           document.getElementById("pret-id-statut").value = "";
           chargerPrets();
+          alert("Statut du prêt mis à jour");
         });
       }
     }
@@ -569,6 +473,22 @@
       document.getElementById("pret-id-statut").value = p.id_pret;
       document.getElementById("pret-statut").value = p.statut;
       
+      // Gérer l'assurance
+      const assuranceCheckbox = document.getElementById("avec-assurance");
+      const assuranceContainer = document.getElementById("assurance-container");
+      const tauxAssuranceInput = document.getElementById("taux-assurance");
+      
+      if (p.taux_assurance) {
+        assuranceCheckbox.checked = true;
+        assuranceContainer.classList.remove("hidden");
+        tauxAssuranceInput.value = p.taux_assurance;
+      } else {
+        assuranceCheckbox.checked = false;
+        assuranceContainer.classList.add("hidden");
+        tauxAssuranceInput.value = "";
+      }
+      
+      // Scroll vers le formulaire
       document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
     }
     
@@ -578,6 +498,10 @@
       document.getElementById("pret-type").value = "";
       document.getElementById("pret-montant").value = "";
       document.getElementById("pret-duree").value = "";
+      document.getElementById("avec-assurance").checked = false;
+      document.getElementById("taux-assurance").value = "";
+      document.getElementById("assurance-container").classList.add("hidden");
+      document.getElementById("pret-id-statut").value = "";
     }
     
     function chargerClients() {
@@ -586,14 +510,15 @@
         tbody.innerHTML = "";
         data.forEach(c => {
           const tr = document.createElement("tr");
+          tr.className = "hover:bg-gray-50";
           tr.innerHTML = `
-            <td>${c.id_client}</td>
-            <td>${c.nom}</td>
-            <td>${c.email}</td>
-            <td>${c.telephone || '-'}</td>
-            <td>
-              <button onclick='editerClient(${JSON.stringify(c)})'>Éditer</button>
-              <button class="danger" onclick='supprimerClient(${c.id_client})'>Supprimer</button>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${c.id_client}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${c.nom}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${c.email}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${c.telephone || '-'}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+              <button onclick='editerClient(${JSON.stringify(c)})' class="text-bmoi-primary hover:text-bmoi-secondary mr-2">Éditer</button>
+              <button onclick='supprimerClient(${c.id_client})' class="text-red-600 hover:text-red-800">Supprimer</button>
             </td>
           `;
           tbody.appendChild(tr);
@@ -615,11 +540,13 @@
         ajax("PUT", `/clients/${id}`, data, () => {
           resetFormClient();
           chargerClients();
+          alert("Client mis à jour avec succès");
         });
       } else {
         ajax("POST", "/clients", data, () => {
           resetFormClient();
           chargerClients();
+          alert("Client créé avec succès");
         });
       }
     }
@@ -639,6 +566,7 @@
       if (confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
         ajax("DELETE", `/clients/${id}`, null, () => {
           chargerClients();
+          alert("Client supprimé avec succès");
         });
       }
     }
@@ -656,13 +584,13 @@
       document.getElementById('paiement-pret-id').value = idPret;
       document.getElementById('paiement-client-id').value = idClient;
       document.getElementById('paiement-montant').value = "";
-      document.getElementById('paiement-modal').style.display = 'block';
-      document.getElementById('paiement-overlay').style.display = 'block';
+      document.getElementById('paiement-modal').classList.remove('hidden');
+      document.getElementById('paiement-overlay').classList.remove('hidden');
     }
     
     function fermerPaiementModal() {
-      document.getElementById('paiement-modal').style.display = 'none';
-      document.getElementById('paiement-overlay').style.display = 'none';
+      document.getElementById('paiement-modal').classList.add('hidden');
+      document.getElementById('paiement-overlay').classList.add('hidden');
     }
     
     function effectuerPaiement() {
@@ -689,27 +617,45 @@
         tbody.innerHTML = "";
         data.forEach(h => {
           const tr = document.createElement("tr");
+          tr.className = "hover:bg-gray-50";
           tr.innerHTML = `
-            <td>${new Date(h.date_action).toLocaleString()}</td>
-            <td>${h.description}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">${new Date(h.date_action).toLocaleString()}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">${h.description}</td>
           `;
           tbody.appendChild(tr);
         });
-        document.getElementById('historique-modal').style.display = 'block';
-        document.getElementById('historique-overlay').style.display = 'block';
+        document.getElementById('historique-modal').classList.remove('hidden');
+        document.getElementById('historique-overlay').classList.remove('hidden');
       });
     }
     
     function fermerHistoriqueModal() {
-      document.getElementById('historique-modal').style.display = 'none';
-      document.getElementById('historique-overlay').style.display = 'none';
+      document.getElementById('historique-modal').classList.add('hidden');
+      document.getElementById('historique-overlay').classList.add('hidden');
+    }
+    
+    function toggleAssuranceField() {
+      const isChecked = document.getElementById("avec-assurance").checked;
+      const assuranceContainer = document.getElementById("assurance-container");
+      
+      if (isChecked) {
+        assuranceContainer.classList.remove("hidden");
+      } else {
+        assuranceContainer.classList.add("hidden");
+        document.getElementById("taux-assurance").value = "";
+      }
     }
     
     document.addEventListener('DOMContentLoaded', function() {
+      // Initialiser l'application
       showSection('prets');
       
+      // Gestion des modals
       document.getElementById('paiement-overlay').addEventListener('click', fermerPaiementModal);
       document.getElementById('historique-overlay').addEventListener('click', fermerHistoriqueModal);
+      
+      // Initialiser le champ d'assurance
+      toggleAssuranceField();
     });
   </script>
 </body>
