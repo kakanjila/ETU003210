@@ -102,3 +102,15 @@ CREATE TABLE historique_taux_interet (
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_type_pret) REFERENCES types_pret(id_type_pret)
 );
+
+CREATE TABLE simulations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  montant DECIMAL(12,2) NOT NULL,
+  duree_mois INT NOT NULL,
+  taux_interet DECIMAL(5,2) NOT NULL,
+  taux_assurance DECIMAL(5,2) DEFAULT 0,
+  mensualite DECIMAL(10,2) NOT NULL,
+  cout_total DECIMAL(12,2) NOT NULL,
+  date_simulation DATETIME NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

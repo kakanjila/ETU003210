@@ -164,7 +164,24 @@
     </div>
 
     <div id="simulation" class="bg-white rounded-lg shadow-md p-6 hidden">
-      <!-- Le contenu de la simulation sera injecté ici -->
+    <!-- Le contenu existant sera injecté ici -->
+    
+    <!-- Ajoutez ce bloc juste après les informations de base du prêt -->
+    <div class="flex items-center gap-4 mb-6 bg-gray-50 p-4 rounded-lg">
+        <div>
+        <label for="delai-mois" class="block text-sm font-medium text-bmoi-primary mb-1">
+            Délai avant 1ère mensualité (mois)
+        </label>
+        <input type="number" id="delai-mois" min="0" max="12" value="0" 
+                class="w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bmoi-primary focus:border-bmoi-primary">
+        </div>
+        <button onclick="recalculerSimulation()" 
+                class="mt-2 bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200">
+        Appliquer le délai
+        </button>
+    </div>
+    
+    <!-- Le reste du contenu de la simulation sera injecté ici -->
     </div>
   </main>
 
@@ -202,158 +219,195 @@
 }
 
     function simulerPret(idPret) {
-      currentPretId = idPret; // Stocker l'ID du prêt actuel
-      
-      fetch(apiBase + `/prets/${idPret}`)
+    currentPretId = idPret;
+    
+    // Récupérer le délai saisi (0 par défaut)
+    const delaiMois = parseInt(document.getElementById('delai-mois')?.value) || 0;
+    
+    fetch(apiBase + `/prets/${idPret}`)
         .then(response => {
-          if (!response.ok) throw new Error("Erreur réseau");
-          return response.json();
+            if (!response.ok) throw new Error("Erreur réseau");
+            return response.json();
         })
         .then(pret => {
-          // Validation des données
-          if (!pret.montant || !pret.taux_interet || !pret.duree_mois || !pret.date_debut) {
-            throw new Error("Données du prêt incomplètes");
-          }
+            // Validation des données
+            if (!pret.montant || !pret.taux_interet || !pret.duree_mois || !pret.date_debut) {
+                throw new Error("Données du prêt incomplètes");
+            }
 
-          // Extraction des données
-          const montant = parseFloat(pret.montant);
-          const tauxAnnuel = parseFloat(pret.taux_interet);
-          const duree = parseInt(pret.duree_mois);
-          const tauxAssuranceAnnuel = pret.taux_assurance ? parseFloat(pret.taux_assurance) : 0;
+            // Extraction des données
+            const montant = parseFloat(pret.montant);
+            const tauxAnnuel = parseFloat(pret.taux_interet);
+            const duree = parseInt(pret.duree_mois);
+            const tauxAssuranceAnnuel = pret.taux_assurance ? parseFloat(pret.taux_assurance) : 0;
 
-          // Calculs financiers
-          const tauxMensuel = tauxAnnuel / 100 / 12;
-          const mensualiteSansAssurance = parseFloat(
-            ((montant * tauxMensuel) / (1 - Math.pow(1 + tauxMensuel, -duree))).toFixed(2)
-          );
-
-          // Assurance (calcul mensuel fixe sur capital initial)
-          const assuranceMensuelle = tauxAssuranceAnnuel 
-            ? parseFloat(((tauxAssuranceAnnuel / 100 * montant) / 12).toFixed(2))
-            : 0;
-
-          const mensualiteTotale = mensualiteSansAssurance + assuranceMensuelle;
-
-          // Initialisation amortissement
-          let capitalRestant = montant;
-          const dateDebut = new Date(pret.date_debut);
-          const aujourdHui = new Date();
-
-          // Génération HTML
-          let html = `
-            <div class="simulation-header mb-6">
-              <h2 class="text-xl font-bold text-bmoi-primary mb-4">Simulation du prêt #${pret.id_pret}</h2>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <p class="mb-2"><strong class="text-bmoi-primary">Client:</strong> ${pret.client_nom || "Non spécifié"}</p>
-                  <p class="mb-2"><strong class="text-bmoi-primary">Montant:</strong> ${montant.toLocaleString()} AR</p>
-                  <p class="mb-2"><strong class="text-bmoi-primary">Durée:</strong> ${duree} mois</p>
-                </div>
-                <div>
-                  <p class="mb-2"><strong class="text-bmoi-primary">Taux d'intérêt:</strong> ${tauxAnnuel}% (${(tauxMensuel * 100).toFixed(4)}% mensuel)</p>
-                  <p class="mb-2"><strong class="text-bmoi-primary">Taux d'assurance:</strong> ${tauxAssuranceAnnuel}%</p>
-                </div>
-              </div>
-              
-              <div class="montants-cles bg-bmoi-promo p-4 rounded-lg mb-6">
-                <p><span>Mensualité hors assurance:</span> ${mensualiteSansAssurance.toFixed(2)} AR</p>
-                <p><span>Assurance mensuelle:</span> ${assuranceMensuelle.toFixed(2)} AR</p>
-                <p class="total"><span>Mensualité totale:</span> ${mensualiteTotale.toFixed(2)} AR</p>
-              </div>
-            </div>
-
-            <div class="overflow-x-auto">
-              <table class="amortissement-table min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-bmoi-primary uppercase tracking-wider">Mois</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-bmoi-primary uppercase tracking-wider">Date</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-bmoi-primary uppercase tracking-wider">Intérêts</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-bmoi-primary uppercase tracking-wider">Capital</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-bmoi-primary uppercase tracking-wider">Assurance</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-bmoi-primary uppercase tracking-wider">Mensualité</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-bmoi-primary uppercase tracking-wider">Reste dû</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-          `;
-
-          // Calcul du tableau d'amortissement
-          for (let mois = 1; mois <= duree; mois++) {
-            const datePaiement = new Date(dateDebut);
-            datePaiement.setMonth(dateDebut.getMonth() + mois - 1);
-
-            const interets = parseFloat((capitalRestant * tauxMensuel).toFixed(2));
-            const capitalRembourse = parseFloat(
-              Math.min(mensualiteSansAssurance - interets, capitalRestant).toFixed(2)
+            // Calculs financiers
+            const tauxMensuel = tauxAnnuel / 100 / 12;
+            const mensualiteSansAssurance = parseFloat(
+                ((montant * tauxMensuel) / (1 - Math.pow(1 + tauxMensuel, -duree))).toFixed(2)
             );
+
+            // Assurance (calcul mensuel fixe sur capital initial)
+            const assuranceMensuelle = tauxAssuranceAnnuel 
+                ? parseFloat(((tauxAssuranceAnnuel / 100 * montant) / 12).toFixed(2))
+                : 0;
+
+            const mensualiteTotale = mensualiteSansAssurance + assuranceMensuelle;
+
+            // Initialisation amortissement
+            let capitalRestant = montant;
+            let dateDebut = new Date(pret.date_debut);
             
-            // Ajustement dernier mois
-            const estDernierMois = mois === duree;
-            const capitalAjuste = estDernierMois 
-              ? parseFloat((capitalRembourse + (capitalRestant - capitalRembourse)).toFixed(2))
-              : capitalRembourse;
+            // Appliquer le délai si spécifié
+            if (delaiMois > 0) {
+                dateDebut.setMonth(dateDebut.getMonth() + delaiMois);
+            }
+            
+            const aujourdHui = new Date();
 
-            capitalRestant = parseFloat((capitalRestant - capitalAjuste).toFixed(2));
+            // Génération HTML
+            let html = `
+                <div class="simulation-header mb-6">
+                    <h2 class="text-xl font-bold text-bmoi-primary mb-4">Simulation du prêt #${pret.id_pret}</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <p class="mb-2"><strong class="text-bmoi-primary">Client:</strong> ${pret.client_nom || "Non spécifié"}</p>
+                            <p class="mb-2"><strong class="text-bmoi-primary">Montant:</strong> ${montant.toLocaleString()} AR</p>
+                            <p class="mb-2"><strong class="text-bmoi-primary">Durée:</strong> ${duree} mois</p>
+                        </div>
+                        <div>
+                            <p class="mb-2"><strong class="text-bmoi-primary">Taux d'intérêt:</strong> ${tauxAnnuel}% (${(tauxMensuel * 100).toFixed(4)}% mensuel)</p>
+                            <p class="mb-2"><strong class="text-bmoi-primary">Taux d'assurance:</strong> ${tauxAssuranceAnnuel}%</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Bloc de contrôle du délai -->
+                    <div class="flex items-center gap-4 mb-6 bg-gray-50 p-4 rounded-lg">
+                        <div>
+                            <label for="delai-mois" class="block text-sm font-medium text-bmoi-primary mb-1">
+                                Délai avant 1ère mensualité (mois)
+                            </label>
+                            <input type="number" id="delai-mois" min="0" max="12" value="${delaiMois}" 
+                                   class="w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bmoi-primary focus:border-bmoi-primary">
+                        </div>
+                        <button onclick="recalculerSimulation()" 
+                                class="mt-2 bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200">
+                            Appliquer le délai
+                        </button>
+                    </div>
+                    
+                    <div class="montants-cles bg-bmoi-promo p-4 rounded-lg mb-6">
+                        <p><span>Mensualité hors assurance:</span> ${mensualiteSansAssurance.toFixed(2)} AR</p>
+                        <p><span>Assurance mensuelle:</span> ${assuranceMensuelle.toFixed(2)} AR</p>
+                        <p class="total"><span>Mensualité totale:</span> ${mensualiteTotale.toFixed(2)} AR</p>
+                    </div>
+                </div>
 
-            // Ligne du tableau
-            html += `
-              <tr class="${datePaiement < aujourdHui ? 'past' : ''} hover:bg-gray-50">
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${mois}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${datePaiement.toLocaleDateString('fr-FR')}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">${interets.toFixed(2)}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">${capitalAjuste.toFixed(2)}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">${assuranceMensuelle.toFixed(2)}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">${(capitalAjuste + interets + assuranceMensuelle).toFixed(2)}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">${capitalRestant.toFixed(2)}</td>
-              </tr>
+                <div class="overflow-x-auto">
+                    <table class="amortissement-table min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-bmoi-primary uppercase tracking-wider">Mois</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-bmoi-primary uppercase tracking-wider">Date</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-bmoi-primary uppercase tracking-wider">Intérêts</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-bmoi-primary uppercase tracking-wider">Capital</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-bmoi-primary uppercase tracking-wider">Assurance</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-bmoi-primary uppercase tracking-wider">Mensualité</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-bmoi-primary uppercase tracking-wider">Reste dû</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
             `;
-          }
 
-          html += `
-                </tbody>
-              </table>
-            </div>
-            <div class="simulation-summary mt-6">
-              <p class="mb-2"><strong>Coût total des intérêts:</strong> ${((mensualiteSansAssurance * duree) - montant).toFixed(2)} AR</p>
-              <p class="mb-2"><strong>Coût total de l'assurance:</strong> ${(assuranceMensuelle * duree).toFixed(2)} AR</p>
-              <p class="total text-lg mt-4"><strong>Coût total du crédit:</strong> ${((mensualiteTotale * duree) - montant).toFixed(2)} AR</p>
-            </div>
-            
-            <div class="action-buttons">
-              <button onclick="approuverPret(${pret.id_pret})" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200">
-                Approuver le prêt
-              </button>
-              <button onclick="genererPDF()" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200">
-                Exporter en PDF
-              </button>
-            </div>
-          `;
+            // Calcul du tableau d'amortissement
+            for (let mois = 1; mois <= duree; mois++) {
+                const datePaiement = new Date(dateDebut);
+                datePaiement.setMonth(dateDebut.getMonth() + mois - 1);
 
-          // Injection dans le DOM
-          const container = document.getElementById("simulation");
-          container.innerHTML = html;
-          container.classList.remove("hidden");
+                const interets = parseFloat((capitalRestant * tauxMensuel).toFixed(2));
+                const capitalRembourse = parseFloat(
+                    Math.min(mensualiteSansAssurance - interets, capitalRestant).toFixed(2)
+                );
+                
+                // Ajustement dernier mois
+                const estDernierMois = mois === duree;
+                const capitalAjuste = estDernierMois 
+                    ? parseFloat((capitalRembourse + (capitalRestant - capitalRembourse)).toFixed(2))
+                    : capitalRembourse;
+
+                capitalRestant = parseFloat((capitalRestant - capitalAjuste).toFixed(2));
+
+                // Ligne du tableau
+                html += `
+                    <tr class="${datePaiement < aujourdHui ? 'past' : ''} hover:bg-gray-50">
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${mois}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${datePaiement.toLocaleDateString('fr-FR')}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">${interets.toFixed(2)}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">${capitalAjuste.toFixed(2)}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">${assuranceMensuelle.toFixed(2)}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">${(capitalAjuste + interets + assuranceMensuelle).toFixed(2)}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-right">${capitalRestant.toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+                <div class="simulation-summary mt-6">
+                    <p class="mb-2"><strong>Coût total des intérêts:</strong> ${((mensualiteSansAssurance * duree) - montant).toFixed(2)} AR</p>
+                    <p class="mb-2"><strong>Coût total de l'assurance:</strong> ${(assuranceMensuelle * duree).toFixed(2)} AR</p>
+                    <p class="total text-lg mt-4"><strong>Coût total du crédit:</strong> ${((mensualiteTotale * duree) - montant).toFixed(2)} AR</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button onclick="approuverPret(${pret.id_pret})" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200">
+                        Approuver le prêt
+                    </button>
+                    <button onclick="genererPDF()" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-2 px-4 rounded-md shadow-sm transition duration-200">
+                        Exporter en PDF
+                    </button>
+                </div>
+            `;
+
+            // Injection dans le DOM
+            const container = document.getElementById("simulation");
+            container.innerHTML = html;
+            container.classList.remove("hidden");
         })
         .catch(error => {
-          console.error("Erreur:", error);
-          document.getElementById("simulation").innerHTML = `
-            <div class="bg-red-50 border-l-4 border-red-500 p-4">
-              <div class="flex">
-                <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                  </svg>
+            console.error("Erreur:", error);
+            document.getElementById("simulation").innerHTML = `
+                <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700">Erreur lors de la simulation: ${error.message}</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="ml-3">
-                  <p class="text-sm text-red-700">Erreur lors de la simulation: ${error.message}</p>
-                </div>
-              </div>
-            </div>
-          `;
-          container.classList.remove("hidden");
+            `;
+            container.classList.remove("hidden");
         });
+}
+
+function recalculerSimulation() {
+    if (currentPretId) {
+        // Masquer temporairement la simulation pendant le recalcul
+        const simulationDiv = document.getElementById('simulation');
+        simulationDiv.classList.add('hidden');
+        
+        // Relancer la simulation avec le nouveau délai
+        simulerPret(currentPretId);
+    } else {
+        alert("Aucun prêt en cours de simulation");
     }
+}
     
     function approuverPret(idPret) {
         if (!confirm("Êtes-vous sûr de vouloir approuver ce prêt ?")) {

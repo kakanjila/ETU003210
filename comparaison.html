@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Comparaison de Simulations</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bmoi: {
+              primary: '#4C1D95',
+              secondary: '#7C3AED',
+              light: '#8B5CF6',
+              accent: '#A78BFA',
+              promo: '#DDD6FE'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8fafc;
+    }
+    
+    .simulation-card {
+      transition: all 0.2s ease;
+    }
+    
+    .simulation-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .simulation-card.selected {
+      border: 2px solid #4C1D95;
+      background-color: #f3f4f6;
+    }
+    
+    .comparison-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+      .comparison-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-bmoi-primary text-white shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-bmoi-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="text-2xl font-bold">BMOI</span>
+      </div>
+      <a href="simulation_test.html" class="bg-bmoi-light hover:bg-bmoi-secondary text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+        Nouvelle simulation
+      </a>
+    </div>
+  </header>
+
+  <!-- Contenu principal -->
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-bmoi-primary mb-6">Comparaison de simulations</h1>
+    
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <h2 class="text-xl font-semibold text-bmoi-primary mb-4">Sélectionnez 2 simulations à comparer</h2>
+      
+      <div id="simulations-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <!-- Les simulations seront chargées ici -->
+      </div>
+      
+      <button id="btn-compare" onclick="comparerSimulations()" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-bold py-3 px-6 rounded-md shadow-lg transition duration-200 disabled:opacity-50" disabled>
+        Comparer les simulations sélectionnées
+      </button>
+    </div>
+    
+    <div id="comparison-result" class="hidden">
+      <h2 class="text-xl font-semibold text-bmoi-primary mb-4">Résultat de la comparaison</h2>
+      
+      <div class="comparison-container bg-white rounded-lg shadow-md p-6">
+        <div id="comparison-left" class="p-4">
+          <!-- Première simulation à comparer -->
+        </div>
+        
+        <div id="comparison-right" class="p-4">
+          <!-- Deuxième simulation à comparer -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const apiBase = "http://localhost/ETU003210/ws"; // Ajustez selon votre configuration
+    let simulations = [];
+    let selectedSimulations = [];
+    
+    // Charger les simulations au démarrage
+    document.addEventListener('DOMContentLoaded', chargerSimulations);
+    
+    function chargerSimulations() {
+      fetch(apiBase + '/simulation')
+        .then(response => response.json())
+        .then(data => {
+          simulations = data;
+          afficherSimulations(data);
+        })
+        .catch(error => {
+          console.error("Erreur lors du chargement des simulations:", error);
+          document.getElementById('simulations-list').innerHTML = `
+            <div class="col-span-full text-center py-4 text-gray-500">
+              Erreur lors du chargement des simulations. Veuillez réessayer.
+            </div>
+          `;
+        });
+    }
+    
+    function afficherSimulations(simulations) {
+      const container = document.getElementById('simulations-list');
+      
+      if (simulations.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full text-center py-4 text-gray-500">
+            Aucune simulation sauvegardée. Créez d'abord des simulations.
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = simulations.map(sim => `
+        <div class="simulation-card bg-white border border-gray-200 rounded-lg p-4 cursor-pointer" 
+             onclick="toggleSelection('${sim.id}')" 
+             id="sim-${sim.id}">
+          <h3 class="font-semibold text-bmoi-primary">Simulation #${sim.id}</h3>
+          <p class="text-sm text-gray-500 mb-2">${new Date(sim.date_simulation).toLocaleDateString('fr-FR')}</p>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <p class="text-xs text-gray-500">Montant</p>
+              <p class="font-medium">${sim.montant.toLocaleString('fr-FR')} AR</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Durée</p>
+              <p class="font-medium">${sim.duree_mois} mois</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Taux</p>
+              <p class="font-medium">${sim.taux_interet}%</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Mensualité</p>
+              <p class="font-medium">${sim.mensualite.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function toggleSelection(simId) {
+      const index = selectedSimulations.indexOf(simId);
+      const card = document.getElementById(`sim-${simId}`);
+      
+      if (index === -1) {
+        // Ajouter la sélection si moins de 2 sélectionnées
+        if (selectedSimulations.length < 2) {
+          selectedSimulations.push(simId);
+          card.classList.add('selected');
+        }
+      } else {
+        // Retirer la sélection
+        selectedSimulations.splice(index, 1);
+        card.classList.remove('selected');
+      }
+      
+      // Activer/désactiver le bouton de comparaison
+      document.getElementById('btn-compare').disabled = selectedSimulations.length !== 2;
+    }
+    
+    function comparerSimulations() {
+      if (selectedSimulations.length !== 2) {
+        alert("Veuillez sélectionner exactement 2 simulations à comparer");
+        return;
+      }
+      
+      const sim1 = simulations.find(s => s.id == selectedSimulations[0]);
+      const sim2 = simulations.find(s => s.id == selectedSimulations[1]);
+      
+      // Afficher la comparaison
+      afficherComparaison(sim1, sim2);
+    }
+    
+    function afficherComparaison(sim1, sim2) {
+      const container = document.getElementById('comparison-result');
+      const leftCol = document.getElementById('comparison-left');
+      const rightCol = document.getElementById('comparison-right');
+      
+      // Formater les données pour l'affichage
+      const formatSimulation = (sim) => {
+        return `
+          <h3 class="text-lg font-bold text-bmoi-primary mb-3">Simulation #${sim.id}</h3>
+          <div class="space-y-3">
+            <div>
+              <p class="text-sm text-gray-500">Date</p>
+              <p class="font-medium">${new Date(sim.date_simulation).toLocaleDateString('fr-FR')}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Montant emprunté</p>
+              <p class="font-medium">${sim.montant.toLocaleString('fr-FR')} AR</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Durée</p>
+              <p class="font-medium">${sim.duree_mois} mois (${Math.floor(sim.duree_mois/12)} ans)</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Taux d'intérêt</p>
+              <p class="font-medium">${sim.taux_interet}%</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Taux d'assurance</p>
+              <p class="font-medium">${sim.taux_assurance || 0}%</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Mensualité</p>
+              <p class="font-medium">${sim.mensualite.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Coût total des intérêts</p>
+              <p class="font-medium">${(sim.mensualite * sim.duree_mois - sim.montant).toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Coût total du crédit</p>
+              <p class="font-medium">${sim.cout_total.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
+            </div>
+          </div>
+        `;
+      };
+      
+      leftCol.innerHTML = formatSimulation(sim1);
+      rightCol.innerHTML = formatSimulation(sim2);
+      
+      // Afficher le résultat
+      container.classList.remove('hidden');
+      
+      // Faire défiler jusqu'au résultat
+      container.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

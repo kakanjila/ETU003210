@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Connexion - Gestion Bancaire</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .login-container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    
+    .logo {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: #667eea;
+    }
+    
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 30px;
+      font-size: 1.8em;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .login-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-bottom: 20px;
+    }
+    
+    .login-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .error-message {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      border: 1px solid #f5c6cb;
+      display: none;
+    }
+    
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      border: 1px solid #c3e6cb;
+      display: none;
+    }
+    
+    .demo-info {
+      background-color: #e8f4fd;
+      border: 1px solid #bee5eb;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 20px;
+      text-align: left;
+    }
+    
+    .demo-info h4 {
+      color: #0c5460;
+      margin-bottom: 10px;
+    }
+    
+    .demo-info ul {
+      margin-left: 20px;
+      color: #0c5460;
+    }
+    
+    .demo-info li {
+      margin-bottom: 5px;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      color: #667eea;
+      margin-top: 10px;
+    }
+    
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">🏦</div>
+    <h1>Connexion</h1>
+    
+    <div id="error-message" class="error-message"></div>
+    <div id="success-message" class="success-message"></div>
+    
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email :</label>
+        <input type="email" id="email" name="email" required placeholder="Votre email">
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Mot de passe :</label>
+        <input type="password" id="password" name="password" required placeholder="Votre mot de passe">
+      </div>
+      
+      <button type="submit" class="login-btn">
+        <span id="btn-text">Se connecter</span>
+        <span id="btn-loading" class="loading">Connexion en cours...</span>
+      </button>
+    </form>
+    
+    <div class="demo-info">
+      <h4>📋 Comptes de démonstration :</h4>
+      <ul>
+        <li><strong>dupont@email.com</strong> / mdp123</li>
+        <li><strong>martin@email.com</strong> / mdp456</li>
+        <li><strong>bernard@email.com</strong> / mdp789</li>
+        <li><strong>petit@email.com</strong> / mdp101</li>
+        <li><strong>robert@email.com</strong> / mdp202</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const apiBase = "http://localhost/ETU003210/ws";
+    
+    function showMessage(elementId, message, isError = false) {
+      const element = document.getElementById(elementId);
+      element.textContent = message;
+      element.style.display = 'block';
+      
+      if (isError) {
+        document.getElementById('success-message').style.display = 'none';
+      } else {
+        document.getElementById('error-message').style.display = 'none';
+      }
+      
+      setTimeout(() => {
+        element.style.display = 'none';
+      }, 5000);
+    }
+    
+    function setLoading(loading) {
+      const btnText = document.getElementById('btn-text');
+      const btnLoading = document.getElementById('btn-loading');
+      const loginBtn = document.querySelector('.login-btn');
+      
+      if (loading) {
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline';
+        loginBtn.disabled = true;
+      } else {
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+        loginBtn.disabled = false;
+      }
+    }
+    
+    function authenticateUser(email, password) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', apiBase + '/auth/login', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              try {
+                const response = JSON.parse(xhr.responseText);
+                resolve(response);
+              } catch (e) {
+                reject(new Error('Réponse invalide du serveur'));
+              }
+            } else if (xhr.status === 401) {
+              reject(new Error('Email ou mot de passe incorrect'));
+            } else {
+              reject(new Error('Erreur de connexion au serveur'));
+            }
+          }
+        };
+        
+        const data = `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+        xhr.send(data);
+      });
+    }
+    
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      
+      if (!email || !password) {
+        showMessage('error-message', 'Veuillez remplir tous les champs', true);
+        return;
+      }
+      
+      setLoading(true);
+      
+      try {
+        const response = await authenticateUser(email, password);
+        
+        if (response.success) {
+          // Stocker les informations de l'utilisateur
+          localStorage.setItem('user', JSON.stringify({
+            id: response.user.id_client,
+            nom: response.user.nom,
+            email: response.user.email
+          }));
+          
+          showMessage('success-message', 'Connexion réussie ! Redirection...');
+          
+          // Rediriger vers la page principale
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1500);
+        } else {
+          showMessage('error-message', response.message || 'Erreur de connexion', true);
+        }
+      } catch (error) {
+        showMessage('error-message', error.message, true);
+      } finally {
+        setLoading(false);
+      }
+    });
+    
+    // Vérifier si l'utilisateur est déjà connecté
+    document.addEventListener('DOMContentLoaded', function() {
+      const user = localStorage.getItem('user');
+      if (user) {
+        // L'utilisateur est déjà connecté, rediriger
+        window.location.href = 'index.html';
+      }
+    });
+  </script>
+</body>
+</html> 
