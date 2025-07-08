@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Comparaison de Simulations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparaison de Simulations - BMOI</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -22,11 +23,6 @@
     }
   </script>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f8fafc;
-    }
-    
     .simulation-card {
       transition: all 0.2s ease;
     }
@@ -54,8 +50,8 @@
     }
   </style>
 </head>
-<body class="bg-gray-50">
-  <!-- Header -->
+<body class="font-sans bg-gray-50">
+  <!-- Header Principal -->
   <header class="bg-bmoi-primary text-white shadow-lg">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-2">
@@ -64,32 +60,74 @@
         </svg>
         <span class="text-2xl font-bold">BMOI</span>
       </div>
+      
+      <nav class="hidden md:flex space-x-6">
+        <a href="#" class="hover:text-bmoi-accent transition duration-200 font-medium">Particuliers</a>
+        <a href="#" class="hover:text-bmoi-accent transition duration-200 font-medium">Professionnels</a>
+        <a href="#" class="hover:text-bmoi-accent transition duration-200 font-medium">Entreprises</a>
+        <a href="#" class="hover:text-bmoi-accent transition duration-200 font-medium">À propos</a>
+        <a href="#" class="hover:text-bmoi-accent transition duration-200 font-medium">Contact</a>
+      </nav>
+      
       <a href="simulation_test.html" class="bg-bmoi-light hover:bg-bmoi-secondary text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
         Nouvelle simulation
       </a>
     </div>
   </header>
 
+  <!-- Bannière Information Admin -->
+  <div class="bg-gradient-to-r from-bmoi-primary to-bmoi-secondary text-white py-6">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-2xl md:text-3xl font-bold mb-2">Comparaison de Simulations</h2>
+      <p class="text-lg md:text-xl">Analysez et comparez différentes options de prêt</p>
+    </div>
+  </div>
+
+  <!-- Navigation Secondaire -->
+  <nav class="bg-white shadow-md">
+    <div class="container mx-auto px-4">
+      <div class="flex justify-center space-x-6 py-3 overflow-x-auto">
+        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Comptes</a>
+        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Épargne</a>
+        <a href="simulation_test.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Simulation Simple Remboursement</a>
+        <a href="simulation.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Details Remboursement Client</a>
+        <a href="ajouter_fond.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Ajouter fond</a>
+        <a href="pret.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Prêts</a>
+        <a href="type.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Type Prets</a>
+        <a href="interets.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">interets</a>
+      </div>
+    </div>
+  </nav>
+
   <!-- Contenu principal -->
   <main class="container mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold text-bmoi-primary mb-6">Comparaison de simulations</h1>
-    
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
       <h2 class="text-xl font-semibold text-bmoi-primary mb-4">Sélectionnez 2 simulations à comparer</h2>
       
       <div id="simulations-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <!-- Les simulations seront chargées ici -->
       </div>
       
-      <button id="btn-compare" onclick="comparerSimulations()" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-bold py-3 px-6 rounded-md shadow-lg transition duration-200 disabled:opacity-50" disabled>
+      <button id="btn-compare" onclick="comparerSimulations()" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-200 disabled:opacity-50" disabled>
         Comparer les simulations sélectionnées
       </button>
     </div>
     
     <div id="comparison-result" class="hidden">
       <h2 class="text-xl font-semibold text-bmoi-primary mb-4">Résultat de la comparaison</h2>
+
+      <div class="flex gap-4 mb-6">
+        <button onclick="openAssignModal(selectedSimulations[0], 1)" 
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow transition duration-200">
+          Valider cette simulation (Gauche)
+        </button>
+        <button onclick="openAssignModal(selectedSimulations[1], 2)" 
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow transition duration-200">
+          Valider cette simulation (Droite)
+        </button>
+      </div>
       
-      <div class="comparison-container bg-white rounded-lg shadow-md p-6">
+      <div class="comparison-container bg-white rounded-xl shadow-lg p-6">
         <div id="comparison-left" class="p-4">
           <!-- Première simulation à comparer -->
         </div>
@@ -99,160 +137,400 @@
         </div>
       </div>
     </div>
+
+    <div id="assign-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+      <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
+        <h3 class="text-lg font-bold text-bmoi-primary mb-4">Créer un nouveau prêt</h3>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Client</label>
+          <select id="client-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-bmoi-primary focus:border-bmoi-primary">
+            <!-- Options chargées dynamiquement -->
+          </select>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Type de prêt</label>
+          <select id="loan-type-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-bmoi-primary focus:border-bmoi-primary">
+            <!-- Options chargées dynamiquement -->
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+          <select id="loan-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-bmoi-primary focus:border-bmoi-primary">
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="APPROUVE">Approuvé</option>
+            <option value="REJETE">Rejeté</option>
+          </select>
+        </div>
+        
+        <div class="flex justify-end gap-3">
+          <button onclick="closeAssignModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg shadow transition duration-200">
+            Annuler
+          </button>
+          <button onclick="createLoanFromSimulation()" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-bold py-2 px-4 rounded-lg shadow transition duration-200">
+            Créer le prêt
+          </button>
+        </div>
+      </div>
+    </div>
   </main>
 
+  <!-- Mobile Menu (hidden by default) -->
+  <div class="md:hidden fixed inset-0 bg-bmoi-primary z-50 hidden opacity-0 transition-opacity duration-300">
+    <div class="flex flex-col items-center justify-center h-full space-y-8">
+      <a href="#" class="text-white text-xl font-medium hover:text-bmoi-accent">Particuliers</a>
+      <a href="#" class="text-white text-xl font-medium hover:text-bmoi-accent">Professionnels</a>
+      <a href="#" class="text-white text-xl font-medium hover:text-bmoi-accent">Entreprises</a>
+      <a href="#" class="text-white text-xl font-medium hover:text-bmoi-accent">À propos</a>
+      <a href="#" class="text-white text-xl font-medium hover:text-bmoi-accent">Contact</a>
+      <button class="absolute top-4 right-4 text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
   <script>
-    const apiBase = "http://localhost/ETU003210/ws"; // Ajustez selon votre configuration
+    // Variables globales
+    const apiBase = "http://localhost/ETU003210/ws";
     let simulations = [];
     let selectedSimulations = [];
-    
+    let selectedSimulationForLoan = null;
+    let loanTypes = []; // Pour stocker les types de prêt
+
     // Charger les simulations au démarrage
-    document.addEventListener('DOMContentLoaded', chargerSimulations);
-    
+    document.addEventListener('DOMContentLoaded', () => {
+        chargerSimulations();
+        
+        // Script pour le menu mobile
+        const mobileMenuButton = document.querySelector('header button');
+        const mobileMenu = document.querySelector('.fixed.inset-0');
+        
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.remove('hidden');
+                setTimeout(() => {
+                    mobileMenu.classList.remove('opacity-0');
+                }, 10);
+            });
+            
+            document.querySelector('.fixed.inset-0 button').addEventListener('click', () => {
+                mobileMenu.classList.add('opacity-0');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 300);
+            });
+        }
+    });
+
     function chargerSimulations() {
-      fetch(apiBase + '/simulation')
-        .then(response => response.json())
+        fetch(apiBase + '/simulation')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                simulations = data;
+                afficherSimulations(data);
+            })
+            .catch(error => {
+                console.error("Erreur lors du chargement des simulations:", error);
+                document.getElementById('simulations-list').innerHTML = `
+                    <div class="col-span-full text-center py-4 text-gray-500">
+                        Erreur lors du chargement des simulations: ${error.message}
+                        <button onclick="chargerSimulations()" class="mt-2 text-bmoi-primary hover:underline">
+                            Réessayer
+                        </button>
+                    </div>
+                `;
+            });
+    }
+
+    function afficherSimulations(simulations) {
+        const container = document.getElementById('simulations-list');
+        
+        if (simulations.length === 0) {
+            container.innerHTML = `
+                <div class="col-span-full text-center py-4 text-gray-500">
+                    Aucune simulation sauvegardée. Créez d'abord des simulations.
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = simulations.map(sim => `
+            <div class="simulation-card bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-md" 
+                 onclick="toggleSelection('${sim.id}')" 
+                 id="sim-${sim.id}">
+                <h3 class="font-semibold text-bmoi-primary">Simulation #${sim.id}</h3>
+                <p class="text-sm text-gray-500 mb-2">${new Date(sim.date_simulation).toLocaleDateString('fr-FR')}</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <p class="text-xs text-gray-500">Montant</p>
+                        <p class="font-medium">${sim.montant.toLocaleString('fr-FR')} AR</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Durée</p>
+                        <p class="font-medium">${sim.duree_mois} mois</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Taux</p>
+                        <p class="font-medium">${sim.taux_interet}%</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Mensualité</p>
+                        <p class="font-medium">${sim.mensualite.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function toggleSelection(simId) {
+        const index = selectedSimulations.indexOf(simId);
+        const card = document.getElementById(`sim-${simId}`);
+        
+        if (index === -1) {
+            if (selectedSimulations.length < 2) {
+                selectedSimulations.push(simId);
+                card.classList.add('selected');
+            }
+        } else {
+            selectedSimulations.splice(index, 1);
+            card.classList.remove('selected');
+        }
+        
+        document.getElementById('btn-compare').disabled = selectedSimulations.length !== 2;
+    }
+
+    function comparerSimulations() {
+        if (selectedSimulations.length !== 2) {
+            alert("Veuillez sélectionner exactement 2 simulations à comparer");
+            return;
+        }
+        
+        const sim1 = simulations.find(s => s.id == selectedSimulations[0]);
+        const sim2 = simulations.find(s => s.id == selectedSimulations[1]);
+        
+        afficherComparaison(sim1, sim2);
+    }
+
+    function afficherComparaison(sim1, sim2) {
+        const container = document.getElementById('comparison-result');
+        const leftCol = document.getElementById('comparison-left');
+        const rightCol = document.getElementById('comparison-right');
+        
+        const formatSimulation = (sim) => {
+            return `
+                <h3 class="text-lg font-bold text-bmoi-primary mb-3">Simulation #${sim.id}</h3>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-sm text-gray-500">Date</p>
+                        <p class="font-medium">${new Date(sim.date_simulation).toLocaleDateString('fr-FR')}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Montant emprunté</p>
+                        <p class="font-medium">${sim.montant.toLocaleString('fr-FR')} AR</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Durée</p>
+                        <p class="font-medium">${sim.duree_mois} mois (${Math.floor(sim.duree_mois/12)} ans)</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Taux d'intérêt</p>
+                        <p class="font-medium">${sim.taux_interet}%</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Taux d'assurance</p>
+                        <p class="font-medium">${sim.taux_assurance || 0}%</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Mensualité</p>
+                        <p class="font-medium">${sim.mensualite.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Coût total des intérêts</p>
+                        <p class="font-medium">${(sim.mensualite * sim.duree_mois - sim.montant).toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Coût total du crédit</p>
+                        <p class="font-medium">${sim.cout_total.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
+                    </div>
+                </div>
+            `;
+        };
+        
+        leftCol.innerHTML = formatSimulation(sim1);
+        rightCol.innerHTML = formatSimulation(sim2);
+        
+        container.classList.remove('hidden');
+        container.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function openAssignModal(simulationId, position) {
+        selectedSimulationForLoan = simulations.find(s => s.id == simulationId);
+        console.log("Détails de la simulation:", selectedSimulationForLoan);
+        
+        if (!selectedSimulationForLoan) {
+            alert("Erreur: Simulation non trouvée");
+            return;
+        }
+        
+        // Charger la liste des clients
+        fetch(apiBase + '/clients')
+            .then(response => response.json())
+            .then(clients => {
+                const clientSelect = document.getElementById('client-select');
+                clientSelect.innerHTML = clients.map(client => 
+                    `<option value="${client.id_client}">${client.nom}</option>`
+                ).join('');
+                
+                return fetch(apiBase + '/types_pret');
+            })
+            .then(response => response.json())
+            .then(data => {
+                loanTypes = data;
+                const typeSelect = document.getElementById('loan-type-select');
+                typeSelect.innerHTML = data.map(type => 
+                    `<option value="${type.id_type_pret}" data-taux="${type.taux_interet || type.taux}">${type.nom_type}</option>`
+                ).join('');
+                
+                updateInterestRateOptions();
+                document.getElementById('assign-modal').classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error("Erreur:", error);
+                alert("Erreur lors du chargement des données");
+            });
+    }
+
+    function createLoanFromSimulation() {
+        const clientId = document.getElementById('client-select').value;
+        const loanTypeId = document.getElementById('loan-type-select').value;
+        const status = document.getElementById('loan-status').value;
+        
+        if (!clientId || !loanTypeId) {
+            alert("Veuillez sélectionner un client et un type de prêt");
+            return;
+        }
+        
+        // Récupération robuste du taux
+        const useSimulationRate = document.getElementById('use-sim-rate').checked;
+        let interestRate;
+        
+        if (useSimulationRate) {
+            interestRate = selectedSimulationForLoan.taux_interet || 
+                          selectedSimulationForLoan.taux;
+            console.log("Using simulation rate:", interestRate);
+        } else {
+            const selectedOption = document.getElementById('loan-type-select').selectedOptions[0];
+            interestRate = selectedOption.dataset.taux || 
+                          loanTypes.find(t => t.id_type_pret == loanTypeId)?.taux_interet ||
+                          selectedSimulationForLoan.taux_interet;
+            console.log("Using loan type rate:", interestRate);
+        }
+        
+        // Validation du taux
+        if (isNaN(parseFloat(interestRate))) {
+            alert("Erreur: Le taux d'intérêt n'est pas valide");
+            return;
+        }
+        
+        // Préparation des dates
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setMonth(startDate.getMonth() + selectedSimulationForLoan.duree_mois);
+        
+        // Construction de l'objet de données
+        const loanData = {
+            id_client: clientId,
+            id_type_pret: loanTypeId,
+            montant: selectedSimulationForLoan.montant,
+            taux_interet: parseFloat(interestRate), // Conversion en nombre
+            taux_assurance: selectedSimulationForLoan.taux_assurance || null,
+            duree_mois: selectedSimulationForLoan.duree_mois,
+            date_debut: startDate.toISOString().split('T')[0],
+            date_fin: endDate.toISOString().split('T')[0],
+            statut: status,
+            id_simulation: selectedSimulationForLoan.id
+        };
+        
+        console.log("Données envoyées:", loanData);
+        
+        // Envoi de la requête
+        fetch(apiBase + '/prets', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(loanData)
+        })
+        .then(response => {
+            if (!response.ok) return response.text().then(text => { throw new Error(text) });
+            return response.json();
+        })
         .then(data => {
-          simulations = data;
-          afficherSimulations(data);
+            console.log("Réponse du serveur:", data);
+            alert(`Prêt créé avec succès! Taux appliqué: ${interestRate}%`);
+            closeAssignModal();
         })
         .catch(error => {
-          console.error("Erreur lors du chargement des simulations:", error);
-          document.getElementById('simulations-list').innerHTML = `
-            <div class="col-span-full text-center py-4 text-gray-500">
-              Erreur lors du chargement des simulations. Veuillez réessayer.
-            </div>
-          `;
+            console.error("Erreur complète:", error);
+            alert("Erreur lors de la création du prêt: " + error.message);
         });
     }
-    
-    function afficherSimulations(simulations) {
-      const container = document.getElementById('simulations-list');
-      
-      if (simulations.length === 0) {
-        container.innerHTML = `
-          <div class="col-span-full text-center py-4 text-gray-500">
-            Aucune simulation sauvegardée. Créez d'abord des simulations.
-          </div>
-        `;
-        return;
-      }
-      
-      container.innerHTML = simulations.map(sim => `
-        <div class="simulation-card bg-white border border-gray-200 rounded-lg p-4 cursor-pointer" 
-             onclick="toggleSelection('${sim.id}')" 
-             id="sim-${sim.id}">
-          <h3 class="font-semibold text-bmoi-primary">Simulation #${sim.id}</h3>
-          <p class="text-sm text-gray-500 mb-2">${new Date(sim.date_simulation).toLocaleDateString('fr-FR')}</p>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <p class="text-xs text-gray-500">Montant</p>
-              <p class="font-medium">${sim.montant.toLocaleString('fr-FR')} AR</p>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">Durée</p>
-              <p class="font-medium">${sim.duree_mois} mois</p>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">Taux</p>
-              <p class="font-medium">${sim.taux_interet}%</p>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">Mensualité</p>
-              <p class="font-medium">${sim.mensualite.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-    
-    function toggleSelection(simId) {
-      const index = selectedSimulations.indexOf(simId);
-      const card = document.getElementById(`sim-${simId}`);
-      
-      if (index === -1) {
-        // Ajouter la sélection si moins de 2 sélectionnées
-        if (selectedSimulations.length < 2) {
-          selectedSimulations.push(simId);
-          card.classList.add('selected');
+
+    function updateInterestRateOptions() {
+        const rateOptionsContainer = document.getElementById('rate-options-container');
+        
+        if (!rateOptionsContainer) {
+            // Créer le conteneur s'il n'existe pas
+            const loanTypeSelect = document.getElementById('loan-type-select');
+            const container = document.createElement('div');
+            container.id = 'rate-options-container';
+            container.className = 'mb-4';
+            container.innerHTML = `
+                <label class="block text-sm font-medium text-gray-700 mb-1">Taux d'intérêt</label>
+                <div class="flex items-center mb-2">
+                    <input type="radio" id="use-sim-rate" name="interest-rate" value="simulation" checked 
+                           class="mr-2">
+                    <label for="use-sim-rate" class="mr-4">Utiliser le taux de la simulation (${selectedSimulationForLoan.taux_interet}%)</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="radio" id="use-type-rate" name="interest-rate" value="type" 
+                           class="mr-2">
+                    <label for="use-type-rate">Utiliser le taux par défaut du type de prêt (<span id="default-rate-value">0</span>%)</label>
+                </div>
+            `;
+            
+            loanTypeSelect.after(container);
+            
+            // Mettre à jour le taux par défaut quand le type de prêt change
+            document.getElementById('loan-type-select').addEventListener('change', function() {
+                const selectedTypeId = this.value;
+                const selectedType = loanTypes.find(type => type.id_type_pret == selectedTypeId);
+                if (selectedType) {
+                    document.getElementById('default-rate-value').textContent = selectedType.taux_interet || '0';
+                }
+            });
         }
-      } else {
-        // Retirer la sélection
-        selectedSimulations.splice(index, 1);
-        card.classList.remove('selected');
-      }
-      
-      // Activer/désactiver le bouton de comparaison
-      document.getElementById('btn-compare').disabled = selectedSimulations.length !== 2;
+        
+        // Initialiser le taux par défaut
+        const initialTypeId = document.getElementById('loan-type-select').value;
+        const initialType = loanTypes.find(type => type.id_type_pret == initialTypeId);
+        if (initialType) {
+            document.getElementById('default-rate-value').textContent = initialType.taux_interet || '0';
+        }
     }
-    
-    function comparerSimulations() {
-      if (selectedSimulations.length !== 2) {
-        alert("Veuillez sélectionner exactement 2 simulations à comparer");
-        return;
-      }
-      
-      const sim1 = simulations.find(s => s.id == selectedSimulations[0]);
-      const sim2 = simulations.find(s => s.id == selectedSimulations[1]);
-      
-      // Afficher la comparaison
-      afficherComparaison(sim1, sim2);
-    }
-    
-    function afficherComparaison(sim1, sim2) {
-      const container = document.getElementById('comparison-result');
-      const leftCol = document.getElementById('comparison-left');
-      const rightCol = document.getElementById('comparison-right');
-      
-      // Formater les données pour l'affichage
-      const formatSimulation = (sim) => {
-        return `
-          <h3 class="text-lg font-bold text-bmoi-primary mb-3">Simulation #${sim.id}</h3>
-          <div class="space-y-3">
-            <div>
-              <p class="text-sm text-gray-500">Date</p>
-              <p class="font-medium">${new Date(sim.date_simulation).toLocaleDateString('fr-FR')}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Montant emprunté</p>
-              <p class="font-medium">${sim.montant.toLocaleString('fr-FR')} AR</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Durée</p>
-              <p class="font-medium">${sim.duree_mois} mois (${Math.floor(sim.duree_mois/12)} ans)</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Taux d'intérêt</p>
-              <p class="font-medium">${sim.taux_interet}%</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Taux d'assurance</p>
-              <p class="font-medium">${sim.taux_assurance || 0}%</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Mensualité</p>
-              <p class="font-medium">${sim.mensualite.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Coût total des intérêts</p>
-              <p class="font-medium">${(sim.mensualite * sim.duree_mois - sim.montant).toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Coût total du crédit</p>
-              <p class="font-medium">${sim.cout_total.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} AR</p>
-            </div>
-          </div>
-        `;
-      };
-      
-      leftCol.innerHTML = formatSimulation(sim1);
-      rightCol.innerHTML = formatSimulation(sim2);
-      
-      // Afficher le résultat
-      container.classList.remove('hidden');
-      
-      // Faire défiler jusqu'au résultat
-      container.scrollIntoView({ behavior: 'smooth' });
+
+    function closeAssignModal() {
+        document.getElementById('assign-modal').classList.add('hidden');
+        selectedSimulationForLoan = null;
     }
   </script>
 </body>

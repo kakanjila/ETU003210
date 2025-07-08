@@ -131,7 +131,8 @@
             <div class="flex justify-center space-x-6 py-3 overflow-x-auto">
                 <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Comptes</a>
                 <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Épargne</a>
-                <a href="simulation.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Simulation Remboursement</a>
+                <a href="simulation_test.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Simulation Simple Remboursement</a>
+                <a href="simulation.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Details Remboursement Client</a>
                 <a href="ajouter_fond.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Ajouter fond</a>
                 <a href="pret.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Prêts</a>
                 <a href="type.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Type Prets</a>
@@ -209,7 +210,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.taux_assurance || 0}%</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <button onclick="simulerPret(${p.id_pret})" class="bg-bmoi-primary hover:bg-bmoi-secondary text-white font-medium py-1 px-3 rounded-md shadow-sm transition duration-200">
-                        Simuler
+                        Details
                     </button>
                 </td>
             `;
@@ -241,10 +242,18 @@
             const duree = parseInt(pret.duree_mois);
             const tauxAssuranceAnnuel = pret.taux_assurance ? parseFloat(pret.taux_assurance) : 0;
 
+            // Calcul de la nouvelle durée de remboursement
+            const dureeRemboursement = duree - delaiMois;
+            if (dureeRemboursement <= 0) {
+                document.getElementById("simulation").innerHTML = `<div class='bg-red-50 border-l-4 border-red-500 p-4'><p class='text-red-700'>Le délai ne peut pas être supérieur ou égal à la durée totale du prêt.</p></div>`;
+                document.getElementById("simulation").classList.remove("hidden");
+                return;
+            }
+
             // Calculs financiers
             const tauxMensuel = tauxAnnuel / 100 / 12;
             const mensualiteSansAssurance = parseFloat(
-                ((montant * tauxMensuel) / (1 - Math.pow(1 + tauxMensuel, -duree))).toFixed(2)
+                ((montant * tauxMensuel) / (1 - Math.pow(1 + tauxMensuel, -dureeRemboursement))).toFixed(2)
             );
 
             // Assurance (calcul mensuel fixe sur capital initial)
@@ -268,12 +277,14 @@
             // Génération HTML
             let html = `
                 <div class="simulation-header mb-6">
-                    <h2 class="text-xl font-bold text-bmoi-primary mb-4">Simulation du prêt #${pret.id_pret}</h2>
+                    <h2 class="text-xl font-bold text-bmoi-primary mb-4">Deatil du prêt #${pret.id_pret}</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
                             <p class="mb-2"><strong class="text-bmoi-primary">Client:</strong> ${pret.client_nom || "Non spécifié"}</p>
                             <p class="mb-2"><strong class="text-bmoi-primary">Montant:</strong> ${montant.toLocaleString()} AR</p>
-                            <p class="mb-2"><strong class="text-bmoi-primary">Durée:</strong> ${duree} mois</p>
+                            <p class="mb-2"><strong class="text-bmoi-primary">Durée initiale:</strong> ${duree} mois</p>
+                            <p class="mb-2"><strong class="text-bmoi-primary">Délai avant remboursement:</strong> ${delaiMois} mois</p>
+                            <p class="mb-2"><strong class="text-bmoi-primary">Durée de remboursement:</strong> ${dureeRemboursement} mois</p>
                         </div>
                         <div>
                             <p class="mb-2"><strong class="text-bmoi-primary">Taux d'intérêt:</strong> ${tauxAnnuel}% (${(tauxMensuel * 100).toFixed(4)}% mensuel)</p>
@@ -320,7 +331,7 @@
             `;
 
             // Calcul du tableau d'amortissement
-            for (let mois = 1; mois <= duree; mois++) {
+            for (let mois = 1; mois <= dureeRemboursement; mois++) {
                 const datePaiement = new Date(dateDebut);
                 datePaiement.setMonth(dateDebut.getMonth() + mois - 1);
 
@@ -330,7 +341,7 @@
                 );
                 
                 // Ajustement dernier mois
-                const estDernierMois = mois === duree;
+                const estDernierMois = mois === dureeRemboursement;
                 const capitalAjuste = estDernierMois 
                     ? parseFloat((capitalRembourse + (capitalRestant - capitalRembourse)).toFixed(2))
                     : capitalRembourse;
@@ -356,9 +367,9 @@
                     </table>
                 </div>
                 <div class="simulation-summary mt-6">
-                    <p class="mb-2"><strong>Coût total des intérêts:</strong> ${((mensualiteSansAssurance * duree) - montant).toFixed(2)} AR</p>
-                    <p class="mb-2"><strong>Coût total de l'assurance:</strong> ${(assuranceMensuelle * duree).toFixed(2)} AR</p>
-                    <p class="total text-lg mt-4"><strong>Coût total du crédit:</strong> ${((mensualiteTotale * duree) - montant).toFixed(2)} AR</p>
+                    <p class="mb-2"><strong>Coût total des intérêts:</strong> ${((mensualiteSansAssurance * dureeRemboursement) - montant).toFixed(2)} AR</p>
+                    <p class="mb-2"><strong>Coût total de l'assurance:</strong> ${(assuranceMensuelle * dureeRemboursement).toFixed(2)} AR</p>
+                    <p class="total text-lg mt-4"><strong>Coût total du crédit:</strong> ${((mensualiteTotale * dureeRemboursement) - montant).toFixed(2)} AR</p>
                 </div>
                 
                 <div class="action-buttons">
