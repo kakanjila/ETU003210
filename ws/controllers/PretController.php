@@ -22,21 +22,28 @@ class PretController {
  public static function create() {
     $data = Flight::request()->data;
     
+    // Vérification des champs obligatoires
     if (!isset($data->id_client) || !isset($data->id_type_pret) || !isset($data->montant) 
-        || !isset($data->duree_mois)) {
+        || !isset($data->duree_mois) || !isset($data->date_debut)) {
         Flight::halt(400, 'Données manquantes');
     }
     
+    // Validation du type de prêt
     $typePret = TypesPret::getById($data->id_type_pret);
     if (!$typePret) {
         Flight::halt(404, 'Type de prêt non trouvé');
     }
 
+    // Validation de la date de début
+    if (!strtotime($data->date_debut)) {
+        Flight::halt(400, 'Date de début invalide');
+    }
+
     // Gestion du taux d'assurance (optionnel)
     $taux_assurance = isset($data->taux_assurance) && $data->taux_assurance !== '' ? $data->taux_assurance : null;
     
-    $dateDebut = date('Y-m-d');
-    $dateFin = date('Y-m-d', strtotime("+{$data->duree_mois} months"));
+    // Calcul de la date de fin en fonction de la date de début et de la durée
+    $dateFin = date('Y-m-d', strtotime("{$data->date_debut} +{$data->duree_mois} months"));
     
     $pretData = [
         'id_client' => $data->id_client,
@@ -44,7 +51,7 @@ class PretController {
         'montant' => $data->montant,
         'taux_interet' => $typePret['taux_interet'],
         'duree_mois' => $data->duree_mois,
-        'date_debut' => $dateDebut,
+        'date_debut' => $data->date_debut, // Utilisation de la date fournie
         'date_fin' => $dateFin,
         'statut' => 'EN_ATTENTE',
         'taux_assurance' => $taux_assurance
@@ -56,7 +63,6 @@ class PretController {
     
     Flight::json(['message' => 'Demande de prêt créée', 'id' => $id]);
 }
-
 
     public static function updateStatus($id) {
         $data = Flight::request()->data;

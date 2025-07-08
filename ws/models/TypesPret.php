@@ -81,3 +81,4 @@ class TypesPret {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+

@@ -5,6 +5,8 @@ require 'routes/pret_routes.php';
 require 'routes/client_routes.php';
 require 'routes/types_pret_routes.php';
 require 'routes/routes.php';  
+require 'routes/interets_routes.php';  
+
 
 
 

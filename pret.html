@@ -135,11 +135,13 @@
   <nav class="bg-white shadow-md">
     <div class="container mx-auto px-4">
       <div class="flex justify-center space-x-6 py-3 overflow-x-auto secondary-nav">
-        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Clients</a>
-        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-bmoi-secondary transition duration-200">Prêts</a>
-        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Comptes</a>
-        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Transactions</a>
-        <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Simulations</a>
+                <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Comptes</a>
+                <a href="#" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Épargne</a>
+                <a href="simulation.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Simulation Remboursement</a>
+                <a href="ajouter_fond.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Ajouter fond</a>
+                <a href="pret.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Prêts</a>
+                <a href="type.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">Type Prets</a>
+                <a href="interets.html" class="whitespace-nowrap px-3 py-2 text-bmoi-primary font-medium hover:text-bmoi-secondary border-b-2 border-transparent hover:border-bmoi-secondary transition duration-200">interets</a>
       </div>
     </div>
   </nav>
@@ -180,6 +182,10 @@
             <div class="flex-1 min-w-[200px]">
               <label for="pret-duree" class="block text-sm font-medium text-gray-700 mb-1">Durée (mois)</label>
               <input type="number" id="pret-duree" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Durée" required>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label for="pret-date-debut" class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
+              <input type="date" id="pret-date-debut" class="w-full p-2 border border-gray-300 rounded-md" required>
             </div>
             <div class="flex items-center gap-2">
               <input type="checkbox" id="avec-assurance" onchange="toggleAssuranceField()" class="h-4 w-4 text-bmoi-primary">
@@ -429,6 +435,7 @@
       data.append('id_type_pret', document.getElementById("pret-type").value);
       data.append('montant', document.getElementById("pret-montant").value);
       data.append('duree_mois', document.getElementById("pret-duree").value);
+      data.append('date_debut', document.getElementById("pret-date-debut").value);
 
       if (withAssurance && tauxAssurance.trim() !== "") {
           data.append('taux_assurance', tauxAssurance);
@@ -437,7 +444,7 @@
       }
 
       if (id) {
-        ajax("PUT", `/prets/${id}`, data, () => {
+        ajax("POST", `/prets/${id}`, data, () => {
           resetFormPret();
           chargerPrets();
           alert("Prêt mis à jour avec succès");
@@ -456,7 +463,7 @@
       const statut = document.getElementById("pret-statut").value;
       
       if(id) {
-        ajax("PUT", `/prets/${id}/status`, `statut=${statut}`, () => {
+        ajax("POST", `/prets/${id}/status`, `statut=${statut}`, () => {
           document.getElementById("pret-id-statut").value = "";
           chargerPrets();
           alert("Statut du prêt mis à jour");
@@ -472,6 +479,7 @@
       document.getElementById("pret-duree").value = p.duree_mois;
       document.getElementById("pret-id-statut").value = p.id_pret;
       document.getElementById("pret-statut").value = p.statut;
+      document.getElementById("pret-date-debut").value = p.date_debut;
       
       // Gérer l'assurance
       const assuranceCheckbox = document.getElementById("avec-assurance");

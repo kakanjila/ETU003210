@@ -19,7 +19,7 @@ Flight::route('GET /fonds', ['FondsController', 'getAll']);
 Flight::route('GET /fonds/@id', ['FondsController', 'getById']);
 Flight::route('GET /etablissements/@id_etablissement/fonds', ['FondsController', 'getByEtablissement']);
 Flight::route('POST /fonds', ['FondsController', 'create']);
-Flight::route('PUT /fonds/@id', ['FondsController', 'update']);
+Flight::route('POST /fonds/@id', ['FondsController', 'update']);
 Flight::route('DELETE /fonds/@id', ['FondsController', 'delete']);
 
 // // Clients
